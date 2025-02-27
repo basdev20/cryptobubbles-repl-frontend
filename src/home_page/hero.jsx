@@ -162,7 +162,7 @@ const Hero = () => {
         // Define force simulation
         const simulation = d3.forceSimulation(data)
             .force("center", d3.forceCenter(width / 2, height / 2)) // Attraction to the center
-            .force("boundary", forceBoundary(20, 20, width - 20, height - 20))
+            .force("boundary", forceBoundary(20, 20, width, height))
             .force("charge", d3.forceManyBody().strength(1)) // Nodes attract each other
             .force("collide", d3.forceCollide().strength(0.1).radius(100).iterations(1)) // Prevents overlap
             .on("tick", () => {
