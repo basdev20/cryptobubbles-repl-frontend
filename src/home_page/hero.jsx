@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import * as d3 from 'd3';
-
+import forceBoundary from "d3-force-boundary"
 const Hero = () => {
 
     const [currentStocksInfo, setCurrentStocksInfo] = useState({
@@ -82,90 +82,113 @@ const Hero = () => {
 
     useEffect(() => {
         const { width, height } = dimensions
+        const r = 70
 
-        // append the svg object to the body of the page
+
         const svg = d3.select("#svgContainer")
             .append("svg")
             .attr("width", width)
-            .attr("height", height)
+            .attr("height", height);
 
-        // create dummy data -> just one element per circle
-        const data = [{ "name": "A" }, { "name": "B" }, { "name": "C" }, { "name": "D" }, { "name": "E" }, { "name": "F" }, { "name": "G" }, { "name": "H" }]
+        // Create dummy data -> just one element per circle
+        console.log(Math.abs(Math.floor(Math.random() * (width - (r * 2)))))
+        const data = [
+            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "B", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "C", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "D", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "E", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "F", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "G", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "H", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) }
+        ];
 
-        // Initialize the circle: all located at the center of the svg area
+        // Filter
+        // Define radial gradient for a bubble-like effect
+        const defs = svg.append("defs");
+
+        const gradient = defs.append("radialGradient")
+            .attr("id", "bubbleGradient")
+            .attr("cx", "50%")
+            .attr("cy", "50%")
+            .attr("r", "80%");
+
+        gradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "rgba(255, 255, 255, 0.9)");
+
+        gradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#d1d1d1");
+
+        gradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "rgba(25, 211, 162, 0.3)");
+
+        // Add blur effect
+        const filter = defs.append("filter")
+            .attr("id", "bubbleBlur");
+
+        filter.append("feGaussianBlur")
+            .attr("stdDeviation", .5);
+
+        // Initialize the circles: all located at the center of the SVG area
         const node = svg.append("g")
             .selectAll("circle")
             .data(data)
-            .join("circle")
-            .attr("r", 50)
+            .enter()
+            .append("circle")
+            .attr("r", r)
             .attr("cx", width / 2)
             .attr("cy", height / 2)
-            .style("fill", "#19d3a2")
-            .style("fill-opacity", 0.3)
-            .attr("stroke", "#b3a2c8")
-            .style("stroke-width", 4)
+            .style("fill", "url(#bubbleGradient)") // Gradient effect
+            .attr("filter", "url(#bubbleBlur)") // Soft blur
+            .attr("stroke", "rgba(255, 255, 255, 0.8)") // Light edge stroke
+            .style("stroke-width", 2)
+            .style("opacity", 0.8) // Semi-transparent bubbles
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
-                .on("end", dragended))
+                .on("end", dragended)
+            );
 
 
-        // Features of the forces applied to the nodes:
-        const simulation = d3.forceSimulation()
-            .force("charge", d3.forceManyBody().strength(10)) // Weak repulsion
-            .force("collide", d3.forceCollide().radius(10).strength(15)) // Ensures no overlap
-            .force("x", d3.forceX(width / 2).strength(0.01)) // Keep general movement centered
-            .force("y", d3.forceY(height / 2).strength(0.01)) // Keep general movement centered
-            .velocityDecay(0.3) // Slows nodes down naturally over time
-
-
-        /**
-            
-        */
-
-        // Apply these forces to the nodes and update their positions.
-        // Once the force algorithm is happy with positions ('alpha' value is low enough), simulations will stop.
-        simulation
-            .nodes(data)
-            .on("tick", function (d) {
-                node
-                    .attr("cx", d => d.x)
-                    .attr("cy", d => d.y)
-                    .transition() // Add transition effect
-                    .duration(1000) // Set duration of transition in milliseconds
-                    .ease(d3.easeBounce) // Set easing function
-
+        // Define force simulation
+        const simulation = d3.forceSimulation(data)
+            .force("center", d3.forceCenter(width / 2, height / 2)) // Attraction to the center
+            .force("boundary", forceBoundary(20, 20, width - 20, height - 20))
+            .force("charge", d3.forceManyBody().strength(1)) // Nodes attract each other
+            .force("collide", d3.forceCollide().strength(0.1).radius(100).iterations(1)) // Prevents overlap
+            .on("tick", () => {
+                node.attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
             });
 
 
-        // What happens when a circle is dragged?
+        // Drag functions
         function dragstarted(event, d) {
-            console.log("drag Started")
             if (!event.active) simulation.alphaTarget(0.03).restart();
-            d.fx = d.x;
-            d.fy = d.y;
+            // d.fx = d.x;
+            // d.fy = d.y;
         }
 
         function dragged(event, d) {
-            console.log("draging ...")
-
-            const damping = 0.01; // Adjust damping factor (lower = smoother)
-            d.fx += (event.x - d.fx) * damping;
-            d.fy += (event.y - d.fy) * damping;
+            d.fx = event.x;
+            d.fy = event.y;
         }
 
         function dragended(event, d) {
-            console.log("drag Stopped")
-
-            if (!event.active) simulation.alphaTarget(0.02);
-
-            // Instead of stopping, transition to free movement using velocity
-            d.vx = (event.x - d.x) * 0.1; // Capture some movement inertia
-            d.vy = (event.y - d.y) * 0.1;
-
+            if (!event.active) simulation.alphaTarget(0.03);
             d.fx = null;
             d.fy = null;
         }
+
 
 
     }, [dimensions])
