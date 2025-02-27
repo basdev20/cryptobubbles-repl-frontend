@@ -91,80 +91,77 @@ const Hero = () => {
             .attr("height", height);
 
         // Create dummy data -> just one element per circle
-        console.log(Math.abs(Math.floor(Math.random() * (width - (r * 2)))))
         const data = [
-            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "A", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "B", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "C", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "D", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "E", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "F", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "G", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "H", x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) }
+            { name: "A", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "B", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "C", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "D", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "E", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "F", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "G", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { name: "H", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) }
         ];
 
         // Filter
         // Define radial gradient for a bubble-like effect
         const defs = svg.append("defs");
+        // const labels = svg.append("text")
 
-        const gradient = defs.append("radialGradient")
-            .attr("id", "bubbleGradient")
-            .attr("cx", "50%")
-            .attr("cy", "50%")
-            .attr("r", "80%");
+        data.forEach((d, i) => {
+            const gradient = defs.append("radialGradient")
+                .attr("id", `bubbleGradient-${i}`)
+                .attr("cx", "50%")
+                .attr("cy", "50%")
+                .attr("r", "80%");
 
-        gradient.append("stop")
-            .attr("offset", "0%")
-            .attr("stop-color", "rgba(255, 255, 255, 0.9)");
+            gradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", "rgba(255, 255, 255, 0.9)");
 
-        gradient.append("stop")
-            .attr("offset", "100%")
-            .attr("stop-color", "#d1d1d1");
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", d.colorAndSize_state ? "#d1d1d1" : "#db4242");
 
-        gradient.append("stop")
-            .attr("offset", "100%")
-            .attr("stop-color", "rgba(25, 211, 162, 0.3)");
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", "rgba(25, 211, 162, 0.3)");
+        });
 
         // Add blur effect
         const filter = defs.append("filter")
             .attr("id", "bubbleBlur");
 
         filter.append("feGaussianBlur")
-            .attr("stdDeviation", .5);
+            .attr("stdDeviation", 0.5);
 
-        // Initialize the circles: all located at the center of the SVG area
+        // Initialize the circles: each gets its unique gradient
         const node = svg.append("g")
             .selectAll("circle")
             .data(data)
             .enter()
             .append("circle")
-            .attr("r", r)
+            .attr("r", d => (d.colorAndSize_state ? r : 40))
             .attr("cx", width / 2)
             .attr("cy", height / 2)
-            .style("fill", "url(#bubbleGradient)") // Gradient effect
-            .attr("filter", "url(#bubbleBlur)") // Soft blur
-            .attr("stroke", "rgba(255, 255, 255, 0.8)") // Light edge stroke
+            .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
+            .attr("filter", "url(#bubbleBlur)")
+            .attr("stroke", "rgba(255, 255, 255, 0.8)")
             .style("stroke-width", 2)
-            .style("opacity", 0.8) // Semi-transparent bubbles
+            .style("opacity", 0.8)
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended)
             );
 
+            
 
         // Define force simulation
         const simulation = d3.forceSimulation(data)
             .force("center", d3.forceCenter(width / 2, height / 2)) // Attraction to the center
-            .force("boundary", forceBoundary(20, 20, width, height))
+            .force("boundary", forceBoundary(20, 20, width - (r * 2), height - (r * 2)))
             .force("charge", d3.forceManyBody().strength(1)) // Nodes attract each other
-            .force("collide", d3.forceCollide().strength(0.1).radius(100).iterations(1)) // Prevents overlap
+            .force("collide", d3.forceCollide().strength(0.1).radius(80).iterations(1)) // Prevents overlap
             .on("tick", () => {
                 node.attr("cx", d => d.x)
                     .attr("cy", d => d.y);
@@ -195,7 +192,7 @@ const Hero = () => {
 
     return (
         <div className="h-[80%]">
-            <div ref={svgContainer} className="border w-full h-full" id="svgContainer"></div>
+            <div ref={svgContainer} className="w-full h-full" id="svgContainer"></div>
         </div>
     );
 }
