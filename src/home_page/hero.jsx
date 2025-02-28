@@ -92,14 +92,14 @@ const Hero = () => {
 
         // Create dummy data -> just one element per circle
         const data = [
-            { avatar: "/imgs/avatar.png", name: "Stock 1", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", name: "Stock 2", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", name: "Stock 3", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", name: "Something", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", name: "Hello World", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", name: "Apple", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", name: "Microsoft", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", name: "Azure", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) }
+            { avatar: "/imgs/avatar.png", result: -23, name: "Stock 1", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", result: 45, name: "Stock 2", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", result: -12, name: "Stock 3", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", result: 34, name: "Hello World", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", result: 29, name: "Apple", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", result: -8, name: "Microsoft", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", result: 17, name: "Azure", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", result: 0, name: "FB", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) }
         ];
 
         // Filter
@@ -107,27 +107,52 @@ const Hero = () => {
         const defs = svg.append("defs");
 
         data.forEach((d, i) => {
+            // the Gradient Circle
             const gradient = defs.append("radialGradient")
                 .attr("id", `bubbleGradient-${i}`)
                 .attr("cx", "50%")
                 .attr("cy", "50%")
-                .attr("r", "80%");
+                .attr("r", "50%");
 
+            // The margin of the white color in the gradient
             gradient.append("stop")
-                .attr("offset", "0%")
-                .attr("stop-color", "rgba(255, 255, 255, 0.9)");
+                .attr("offset", "85%")
+                .attr("stop-color", () => {
+                    if (d.result == 0) {
+                        // Nutral
+                        return "rgb(96, 76, 195,0.1)"
+
+                    } else if (d.result > 0) {
+                        // Green
+                        return "rgb(143, 209, 79,0.1)"
+                    }
+                    // Red
+                    return "rgb(255, 102,0, 0.1)"
+                })
 
             gradient.append("stop")
                 .attr("offset", "100%")
-                .attr("stop-color", d.colorAndSize_state ? "#d1d1d1" : "#db4242");
+                .attr("stop-color", () => {
+                    if (d.result == 0) {
+                        // Nutral
+                        return "rgb(96, 76, 195,0.7)"
 
-            gradient.append("stop")
-                .attr("offset", "100%")
-                .attr("stop-color", "rgba(25, 211, 162, 0.3)");
+                    } else if (d.result > 0) {
+                        // Green
+                        return "rgb(143, 209, 79,0.7)"
+                    }
+                    // Red
+                    return "rgb(255, 102, 0,0.7)"
+                })
+
+            // gradient.append("stop")
+            //     .attr("offset", "100%")
+            //     .attr("stop-color", "rgba(25, 211, 162, 0.3)");
         });
 
         const filter = defs.append("filter")
             .attr("id", "bubbleBlur");
+
 
         filter.append("feGaussianBlur")
             .attr("stdDeviation", 0.5);
@@ -157,13 +182,16 @@ const Hero = () => {
             .attr("width", 30)
             .attr("height", 30)
             .attr("x", -15) // Center the image
-            .attr("y", -25); // Position above text with 15px margin
+            .attr("y", -30); // Position above text with 15px margin
 
         node.append("text")
             .attr("text-anchor", "middle")
             .attr("dy", "20") // Adjust text position below the avatar
+            .attr("class", "nunito-font")
             .style("fill", "black")
-            .style("font-size", "12px")
+            // .style("font-size", "12px")
+            .style("font-size", "14px") // Control font size
+            // Make text bold
             .text(d => d.name);
 
         const simulation = d3.forceSimulation(data)

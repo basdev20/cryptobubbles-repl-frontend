@@ -3,7 +3,7 @@ const Nav = () => {
         <div className="w-full">
             <nav className="max-w-screen-2xl px-4 py-2 mx-auto text-white bg-white shadow-sm lg:px-8 lg:py-3">
                 <div className="container flex flex-wrap items-center justify-between mx-auto text-slate-800">
-                    <a href="#" className="mr-4 block cursor-pointer py-1.5 text-base text-slate-800 font-semibold">
+                    <a href="#" className="nunito-font mr-4 block cursor-pointer py-1.5 text-base text-slate-800 font-semibold">
                         Visual Stocks
                     </a>
                     <div className="hidden lg:block">

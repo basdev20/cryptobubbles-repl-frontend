@@ -3,3 +3,10 @@
 .center {
     @apply flex justify-center items-center 
 }
+.nunito-font {
+    font-family: "Nunito", serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-style: normal;
+  }
+  
