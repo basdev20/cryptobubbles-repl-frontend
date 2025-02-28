@@ -92,14 +92,14 @@ const Hero = () => {
 
         // Create dummy data -> just one element per circle
         const data = [
-            { name: "Stock 1", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "Stock 2", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "Stock 3", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "Something", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "Hello World", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "Apple", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "Microsoft", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { name: "Azure", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) }
+            { avatar: "/imgs/avatar.png", name: "Stock 1", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", name: "Stock 2", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", name: "Stock 3", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", name: "Something", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", name: "Hello World", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", name: "Apple", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", name: "Microsoft", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
+            { avatar: "/imgs/avatar.png", name: "Azure", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) }
         ];
 
         // Filter
@@ -112,28 +112,26 @@ const Hero = () => {
                 .attr("cx", "50%")
                 .attr("cy", "50%")
                 .attr("r", "80%");
-        
+
             gradient.append("stop")
                 .attr("offset", "0%")
                 .attr("stop-color", "rgba(255, 255, 255, 0.9)");
-        
+
             gradient.append("stop")
                 .attr("offset", "100%")
                 .attr("stop-color", d.colorAndSize_state ? "#d1d1d1" : "#db4242");
-        
+
             gradient.append("stop")
                 .attr("offset", "100%")
                 .attr("stop-color", "rgba(25, 211, 162, 0.3)");
         });
-        
-        // Add blur effect
+
         const filter = defs.append("filter")
             .attr("id", "bubbleBlur");
-        
+
         filter.append("feGaussianBlur")
             .attr("stdDeviation", 0.5);
-        
-        // Create a group for each node that includes both the circle and the text
+
         const node = svg.append("g")
             .selectAll("g")
             .data(data)
@@ -144,8 +142,7 @@ const Hero = () => {
                 .on("drag", dragged)
                 .on("end", dragended)
             );
-        
-        // Append circles inside each group
+
         node.append("circle")
             .attr("r", d => (d.colorAndSize_state ? r : 40))
             .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
@@ -153,41 +150,46 @@ const Hero = () => {
             .attr("stroke", "rgba(255, 255, 255, 0.8)")
             .style("stroke-width", 2)
             .style("opacity", 0.8);
-        
-        // Append text inside each group
+
+        // Append avatar image above the text
+        node.append("image")
+            .attr("xlink:href", d => d.avatar) // Assuming 'avatar' contains the image URL
+            .attr("width", 30)
+            .attr("height", 30)
+            .attr("x", -15) // Center the image
+            .attr("y", -25); // Position above text with 15px margin
+
         node.append("text")
-            .attr("text-anchor", "middle") // Center text horizontally
-            .attr("dy", "0.35em") // Center text vertically
+            .attr("text-anchor", "middle")
+            .attr("dy", "20") // Adjust text position below the avatar
             .style("fill", "black")
             .style("font-size", "12px")
             .text(d => d.name);
-        
-        // Force simulation
+
         const simulation = d3.forceSimulation(data)
-            .force("center", d3.forceCenter(width / 2, height / 2)) // Attraction to center
+            .force("center", d3.forceCenter(width / 2, height / 2))
             .force("boundary", forceBoundary(20, 20, width - (r * 2), height - (r * 2)))
-            .force("charge", d3.forceManyBody().strength(1)) // Nodes attract each other
-            .force("collide", d3.forceCollide().strength(0.1).radius(80).iterations(1)) // Prevents overlap
+            .force("charge", d3.forceManyBody().strength(1))
+            .force("collide", d3.forceCollide().strength(0.1).radius(80).iterations(1))
             .on("tick", () => {
                 node.attr("transform", d => `translate(${d.x}, ${d.y})`);
             });
-        
-        // Drag functions
+
         function dragstarted(event, d) {
             if (!event.active) simulation.alphaTarget(0.03).restart();
         }
-        
+
         function dragged(event, d) {
             d.fx = event.x;
             d.fy = event.y;
         }
-        
+
         function dragended(event, d) {
             if (!event.active) simulation.alphaTarget(0.03);
             d.fx = null;
             d.fy = null;
         }
-        
+
 
 
     }, [dimensions])
