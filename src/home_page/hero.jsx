@@ -2,6 +2,18 @@ import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import * as d3 from 'd3';
 import forceBoundary from "d3-force-boundary"
+import {
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from "@/components/ui/drawer"
+import Chart from "./chart";
+
 const Hero = () => {
 
     const [currentStocksInfo, setCurrentStocksInfo] = useState({
@@ -62,7 +74,8 @@ const Hero = () => {
         width: 0,
         height: 0,
     });
-    const svgContainer = useRef()
+    const svgContainer = useRef();
+    const [openStock,setOpenStock] = useState(false)
 
     useEffect(() => {
 
@@ -166,7 +179,11 @@ const Hero = () => {
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended)
-            );
+            )
+            .on("click", function (event, d) {
+                console.log("Node clicked:", d);
+                setOpenStock(d)
+            });
 
         node.append("circle")
             .attr("r", d => (d.colorAndSize_state ? r : 40))
@@ -225,6 +242,29 @@ const Hero = () => {
     return (
         <div className="h-[80%]">
             <div ref={svgContainer} className="w-full h-full" id="svgContainer"></div>
+            <div>
+                <Drawer open={openStock} onClose={() => setOpenStock(false)}>
+                    {/* <DrawerTrigger asChild>
+                        <button variant="outline">Open Stats</button>
+                    </DrawerTrigger> */}
+                    <DrawerContent>
+                        <div className="w-full">
+                            <DrawerHeader>
+                                <DrawerTitle>Stock Stats</DrawerTitle>
+                                <DrawerDescription>All diffrente matix are available ...</DrawerDescription>
+                            </DrawerHeader>
+                            <div className="p-5 h-screen-[80%] center">
+                                <Chart />
+                            </div>
+                            <DrawerFooter>
+                                <DrawerClose asChild>
+                                    <button variant="outline">Cancel</button>
+                                </DrawerClose>
+                            </DrawerFooter>
+                        </div>
+                    </DrawerContent>
+                </Drawer>
+            </div>
         </div>
     );
 }
