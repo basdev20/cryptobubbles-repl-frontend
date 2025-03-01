@@ -15,6 +15,7 @@ import {
 import Chart from "./chart";
 import SmallRadioSelector from "./menu-filter";
 import MatrixDisplay from "./matrix-displayer";
+import SplashCursor from "@/components/ui/mouse_animation";
 
 const Hero = () => {
 
@@ -78,6 +79,7 @@ const Hero = () => {
     });
     const svgContainer = useRef();
     const [openStock, setOpenStock] = useState(false)
+    // const [runAnimation, setRunAnimation] = useState(false);
 
     useEffect(() => {
 
@@ -177,6 +179,7 @@ const Hero = () => {
             .data(data)
             .enter()
             .append("g")
+            .attr("class", "cursor-pointer")
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
@@ -243,12 +246,12 @@ const Hero = () => {
 
     return (
         <div className="h-[80%]">
-            <div ref={svgContainer} className="w-full h-full" id="svgContainer"></div>
+            <div ref={svgContainer} className="z-10 w-full h-full" id="svgContainer"></div>
             <div>
                 <Drawer open={openStock} onClose={() => setOpenStock(false)}>
                     {/* <DrawerTrigger asChild>
                         <button variant="outline">Open Stats</button>
-                    </DrawerTrigger> */}
+                        </DrawerTrigger> */}
                     <DrawerContent>
                         <div className="w-full">
                             {/* <DrawerHeader>
@@ -270,13 +273,14 @@ const Hero = () => {
 
                             {/* <DrawerFooter>
                                 <DrawerClose asChild>
-                                    <button variant="outline">Cancel</button>
+                                <button variant="outline">Cancel</button>
                                 </DrawerClose>
                             </DrawerFooter> */}
                         </div>
                     </DrawerContent>
                 </Drawer>
             </div>
+            <SplashCursor />
         </div>
     );
 }
