@@ -1,11 +1,29 @@
-# React + Vite
+# Vite Frontend Project
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a frontend application built using [Vite](https://vitejs.dev/), a fast and modern build tool for web development. It offers a fast development environment with hot module replacement (HMR), optimized build configuration, and support for various JavaScript frameworks.
 
-Currently, two official plugins are available:
+## Features
+- Fast and lightweight build tool with Vite
+- Responsive and modern UI
+- Easy to configure and extend
+- Built with modern JavaScript (ES Modules)
+- Supports TypeScript, JSX/TSX, and CSS/SCSS
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Getting Started
 
+Follow these steps to get the project up and running on your local machine.
 
+### Prerequisites
 
+Make sure you have the following installed:
+- [Node.js](https://nodejs.org/) (>= v14.x.x)
+- [npm](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/)
+
+### Installation
+
+1. Clone the repository to your local machine:
+
+   ```bash
+   git clone https://github.com/juancruz327/cryptobubbles-repl-frontend.git
+   cd cryptobubbles-repl-frontend
+   npm run dev
