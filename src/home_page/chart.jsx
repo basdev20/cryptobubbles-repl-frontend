@@ -49,7 +49,7 @@ const Chart = () => {
             timeScale: {
                 visible: false,
             },
-            height:300,
+            height: 250,
         });
         const series = chart.addSeries(AreaSeries, {
             topColor: '#2962FF',
@@ -286,8 +286,11 @@ const Chart = () => {
     }, [])
 
     return (
-        <div className='w-full h-[300px] border' id='container'>
+        <div className='w-full h-[300px] relative' id='container'>
+            <div className='absolute bottom-0 w-full left-0 z-40 bg-gradient-to-t from-white to-transparent h-[100px]' id='tooltip'>
+            </div>
         </div>
+
     );
 }
 

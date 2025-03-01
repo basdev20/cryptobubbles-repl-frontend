@@ -13,6 +13,8 @@ import {
     DrawerTrigger,
 } from "@/components/ui/drawer"
 import Chart from "./chart";
+import SmallRadioSelector from "./menu-filter";
+import MatrixDisplay from "./matrix-displayer";
 
 const Hero = () => {
 
@@ -75,7 +77,7 @@ const Hero = () => {
         height: 0,
     });
     const svgContainer = useRef();
-    const [openStock,setOpenStock] = useState(false)
+    const [openStock, setOpenStock] = useState(false)
 
     useEffect(() => {
 
@@ -249,18 +251,28 @@ const Hero = () => {
                     </DrawerTrigger> */}
                     <DrawerContent>
                         <div className="w-full">
-                            <DrawerHeader>
+                            {/* <DrawerHeader>
                                 <DrawerTitle>Stock Stats</DrawerTitle>
                                 <DrawerDescription>All diffrente matix are available ...</DrawerDescription>
-                            </DrawerHeader>
-                            <div className="p-5 h-screen-[80%] center">
-                                <Chart />
+                            </DrawerHeader> */}
+                            <div className="p-5 min-h-[60vh] flex flex-col lg:flex-row items-center justify-center gap-4">
+                                {/* Chart Section */}
+                                <div className="w-full lg:w-1/2">
+                                    <Chart />
+                                </div>
+
+                                {/* Matrix and Selector Section */}
+                                <div className="w-full lg:w-1/2 h-full px-2 flex flex-col gap-4">
+                                    <MatrixDisplay />
+                                    <SmallRadioSelector />
+                                </div>
                             </div>
-                            <DrawerFooter>
+
+                            {/* <DrawerFooter>
                                 <DrawerClose asChild>
                                     <button variant="outline">Cancel</button>
                                 </DrawerClose>
-                            </DrawerFooter>
+                            </DrawerFooter> */}
                         </div>
                     </DrawerContent>
                 </Drawer>
