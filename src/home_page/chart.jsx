@@ -1,11 +1,13 @@
 import { AreaSeries, BarSeries, BaselineSeries, createChart } from 'lightweight-charts';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+
 
 // Lightweight Charts™ Example: Floating Tooltip
 // https://tradingview.github.io/lightweight-charts/tutorials/how_to/tooltips
 
 
 const Chart = () => {
+    const chartContainer = useRef();
 
     useEffect(() => {
 
@@ -43,6 +45,7 @@ const Chart = () => {
                 handleScale: false,  // Disable zooming on price axis
             },
             height: 250,
+            // width: width,
         });
 
         const series = chart.addSeries(AreaSeries, {
@@ -280,7 +283,7 @@ const Chart = () => {
     }, [])
 
     return (
-        <div className='w-full h-[300px] relative' id='container'>
+        <div ref={chartContainer} className='w-full h-[300px] relative' id='container'>
             <div className='absolute bottom-9 w-full left-0 z-40 bg-gradient-to-t from-white to-transparent h-[90px]' id='tooltip'>
             </div>
         </div>
