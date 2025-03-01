@@ -255,7 +255,7 @@ const Hero = () => {
                                 <DrawerTitle>Stock Stats</DrawerTitle>
                                 <DrawerDescription>All diffrente matix are available ...</DrawerDescription>
                             </DrawerHeader> */}
-                            <div className="p-5 min-h-[60vh] flex flex-col lg:flex-row items-center justify-center gap-4">
+                            <div className="px-3 flex flex-col lg:flex-row items-center justify-center gap-4">
                                 {/* Chart Section */}
                                 <div className="w-full lg:w-1/2">
                                     <Chart />

@@ -21,36 +21,30 @@ const Chart = () => {
 
         chart.applyOptions({
             crosshair: {
-                // hide the horizontal crosshair line
-                horzLine: {
-                    visible: false,
-                    labelVisible: false,
-                },
-                // hide the vertical crosshair label
-                vertLine: {
-                    visible: true,
-                    labelVisible: false,
-                },
+                horzLine: { visible: false, labelVisible: false },
+                vertLine: { visible: true, labelVisible: false },
             },
-            // hide the grid lines
             grid: {
-                vertLines: {
-                    visible: false,
-                },
-                horzLines: {
-                    visible: false,
-                },
+                vertLines: { visible: false },
+                horzLines: { visible: false },
             },
-            // Hide the right price scale (ruler)
             rightPriceScale: {
                 visible: false,
+                borderVisible: false,
+                entireTextOnly: true,
             },
-            // Hide the bottom time axis (ruler)
             timeScale: {
                 visible: false,
+                handleScroll: false, // Disable dragging (scrolling) on time axis
+                handleScale: false,  // Disable zooming on time axis
+            },
+            priceScale: {
+                position: 'left',
+                handleScale: false,  // Disable zooming on price axis
             },
             height: 250,
         });
+
         const series = chart.addSeries(AreaSeries, {
             topColor: '#2962FF',
             bottomColor: 'rgba(41, 98, 255, 0.28)',
@@ -287,7 +281,7 @@ const Chart = () => {
 
     return (
         <div className='w-full h-[300px] relative' id='container'>
-            <div className='absolute bottom-0 w-full left-0 z-40 bg-gradient-to-t from-white to-transparent h-[100px]' id='tooltip'>
+            <div className='absolute bottom-9 w-full left-0 z-40 bg-gradient-to-t from-white to-transparent h-[90px]' id='tooltip'>
             </div>
         </div>
 
