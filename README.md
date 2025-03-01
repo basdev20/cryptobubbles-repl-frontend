@@ -26,4 +26,5 @@ Make sure you have the following installed:
    ```bash
    git clone https://github.com/juancruz327/cryptobubbles-repl-frontend.git
    cd cryptobubbles-repl-frontend
+   npm install
    npm run dev
