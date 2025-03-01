@@ -4,7 +4,7 @@ function SplashCursor({
   // Add whatever props you like for customization
   SIM_RESOLUTION = 128,
   DYE_RESOLUTION = 1440,
-  CAPTURE_RESOLUTION = 20,
+  CAPTURE_RESOLUTION = 520,
   DENSITY_DISSIPATION = 5.5,
   VELOCITY_DISSIPATION = 2,
   PRESSURE = 0.05,

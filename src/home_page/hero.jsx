@@ -280,7 +280,8 @@ const Hero = () => {
                     </DrawerContent>
                 </Drawer>
             </div>
-            <SplashCursor />
+            { !openStock &&  <SplashCursor />}
+           
         </div>
     );
 }
