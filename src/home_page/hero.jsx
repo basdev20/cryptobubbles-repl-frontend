@@ -219,7 +219,7 @@ const Hero = () => {
 
         const simulation = d3.forceSimulation(SandP500)
             // .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("boundary", forceBoundary(30, 30, width - (r * 2), height - (r * 2)))
+            .force("boundary", forceBoundary(50, 50, width - (r * 2), height - (r * 2)).strength(0.001))
             .force("collide", d3.forceCollide().strength(0.1).radius(50))
             // .force("charge", d3.forceManyBody().strength(1))
             .on("tick", () => {
