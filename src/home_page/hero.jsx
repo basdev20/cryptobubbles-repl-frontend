@@ -76,10 +76,10 @@ const Hero = () => {
                     {
                         ...newTrade,
                         avatar: "/imgs/avatar.png",
-                        x: Math.abs(Math.floor(Math.random() * (h - 50))),
-                        y: Math.abs(Math.floor(Math.random() * (w - 50))),
-                        result: Math.floor(Math.random() * 101) - 50, // Random number between -50 and 50
-                        colorAndSize_state: Math.random() < 0.5 // Random true/false
+                        x: Math.abs(Math.floor(Math.random() * (w - 50))),
+                        y: Math.abs(Math.floor(Math.random() * (h - 50))),
+                        // result: Math.floor(Math.random() * 101) - 50, // Random number between -50 and 50
+                        // colorAndSize_state: Math.random() < 0.5 // Random true/false
                     }
                 ]);
             } catch (err) {
@@ -133,8 +133,8 @@ const Hero = () => {
                         return "rgb(171, 171, 171,0.1)"
 
                     } else if (calculateTradePercentage(d.trade.results) > 0) {
-                        // Blue
-                        return "rgb(10, 190, 255,0.1)"
+                        // Green
+                        return "rgb(5, 247, 163,0.1)"
                     }
                     // Red
                     return "rgb(255, 10, 10, 0.3)"
@@ -148,8 +148,8 @@ const Hero = () => {
                         return "rgb(171, 171, 171,0.7)"
 
                     } else if (calculateTradePercentage(d.trade.results) > 0) {
-                        // Blue
-                        return "rgb(10, 190, 255,0.7)"
+                        // Green
+                        return "rgb(5, 247, 163,0.7)"
                     }
                     // Red
                     return "rgb(255, 10, 10,0.7)"
@@ -219,7 +219,7 @@ const Hero = () => {
 
         const simulation = d3.forceSimulation(SandP500)
             // .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("boundary", forceBoundary(50, 50, width - (r * 2), height - (r * 2)).strength(0.001))
+            // .force("boundary", forceBoundary(50, 50, width + (r * 2), height + 30).strength(0.001))
             .force("collide", d3.forceCollide().strength(0.1).radius(50))
             // .force("charge", d3.forceManyBody().strength(1))
             .on("tick", () => {
