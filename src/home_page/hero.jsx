@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import * as d3 from 'd3';
 import forceBoundary from "d3-force-boundary"
 import {
@@ -15,6 +15,9 @@ import {
 import Chart from "./chart";
 import SmallRadioSelector from "./menu-filter";
 import MatrixDisplay from "./matrix-displayer";
+import { useContext } from "react";
+import TabsContext from "@/context/tabs";
+
 
 function calculateTradePercentage(trades) {
     if (trades.length < 2) {
@@ -33,6 +36,7 @@ function calculateTradePercentage(trades) {
 
 const Hero = () => {
 
+    const { activeTab, setActiveTab } = useContext(TabsContext);
     const [SandP500, setSandP500] = useState([])
     const [dimensions, setDimensions] = useState({
         width: 0,
@@ -40,28 +44,15 @@ const Hero = () => {
     });
     const svgContainer = useRef();
     const [openStock, setOpenStock] = useState(false)
-    const r = 70
+    const r = 70;
 
     useEffect(() => {
-
-        // Get the current height and width of the elment
-        // that will be containinig the svg
         let w = svgContainer.current.offsetWidth;
         let h = svgContainer.current.offsetHeight
-        if (svgContainer.current) {
-            setDimensions({
-                width: w,
-                height: h,
-                colorAndSize_state: true,
-                result: -23
-            });
-        }
 
-        const eventSource = new EventSource(`${import.meta.env.VITE_SERVER_BASE_URL}/sandp`);
-
-        eventSource.onopen = () => {
-            console.log("Connection to /sandp SSE opened.");
-        };
+        setSandP500([])
+        const eventSource = new EventSource(`${import.meta.env.VITE_SERVER_BASE_URL}/${activeTab === 0 ? "sandp" : activeTab === 1 ? "ftse" : "sse"
+            }`);
 
         eventSource.onmessage = (event) => {
             console.log("Received data:", event.data);  // Debugging line
@@ -95,6 +86,20 @@ const Hero = () => {
         return () => {
             eventSource.close(); // Cleanup the event source when the component unmounts
         };
+    }, [activeTab])
+
+    useEffect(() => {
+
+        // Get the current height and width of the elment
+        // that will be containinig the svg
+        if (svgContainer.current) {
+            setDimensions({
+                width: svgContainer.current.offsetWidth,
+                height: svgContainer.current.offsetHeight,
+                colorAndSize_state: true,
+                result: -23
+            });
+        }
 
     }, []);
 
@@ -246,6 +251,8 @@ const Hero = () => {
     return (
         <div className="h-[90%]">
             <div ref={svgContainer} className="w-full h-full" id="svgContainer"></div>
+
+
             <div>
                 <Drawer open={openStock} onClose={() => setOpenStock(false)}>
                     {/* <DrawerTrigger asChild>
