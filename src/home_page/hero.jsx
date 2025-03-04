@@ -16,89 +16,68 @@ import Chart from "./chart";
 import SmallRadioSelector from "./menu-filter";
 import MatrixDisplay from "./matrix-displayer";
 
+function calculateTradePercentage(trades) {
+    if (trades.length < 2) {
+        throw new Error("At least two trades are required to calculate profit/loss.");
+    }
+
+    // Get the first and last trade prices
+    let firstTradePrice = trades[trades.length - 1].price;
+    let lastTradePrice = trades[0].price;
+
+    // Calculate percentage change
+    let percentageChange = ((lastTradePrice - firstTradePrice) / firstTradePrice) * 100;
+
+    return percentageChange.toFixed(2);
+}
+
 const Hero = () => {
 
-    const [currentStocksInfo, setCurrentStocksInfo] = useState({
-        "Meta Data": {
-            "1. Information": "Batch Stock Market Quotes",
-            "2. Notes": "IEX Real-Time",
-            "3. Time Zone": "US/Eastern"
-        },
-        "Stock Quotes": [
-            {
-                "1. symbol": "MSFT",
-                "2. price": "119.1900",
-                "3. volume": "10711735",
-                "4. timestamp": "2019-04-09 14:39:53"
-            },
-            {
-                "1. symbol": "AAPL",
-                "2. price": "199.9100",
-                "3. volume": "27681098",
-                "4. timestamp": "2019-04-09 14:39:56"
-            },
-            {
-                "1. symbol": "FB",
-                "2. price": "177.1800",
-                "3. volume": "14088849",
-                "4. timestamp": "2019-04-09 14:39:50"
-            }
-        ]
-    })
-    const [previousStocksInfo, setPreviousStocksInfo] = useState({
-        "Meta Data": {
-            "1. Information": "Batch Stock Market Quotes",
-            "2. Notes": "IEX Real-Time",
-            "3. Time Zone": "US/Eastern"
-        },
-        "Stock Quotes": [
-            {
-                "1. symbol": "MSFT",
-                "2. price": "119.1900",
-                "3. volume": "10711735",
-                "4. timestamp": "2019-04-09 14:39:53"
-            },
-            {
-                "1. symbol": "AAPL",
-                "2. price": "199.9100",
-                "3. volume": "27681098",
-                "4. timestamp": "2019-04-09 14:39:56"
-            },
-            {
-                "1. symbol": "FB",
-                "2. price": "177.1800",
-                "3. volume": "14088849",
-                "4. timestamp": "2019-04-09 14:39:50"
-            }
-        ]
-    })
+    const [SandP500, setSandP500] = useState([])
     const [dimensions, setDimensions] = useState({
         width: 0,
         height: 0,
     });
     const svgContainer = useRef();
     const [openStock, setOpenStock] = useState(false)
+    const r = 70
 
     useEffect(() => {
 
         // Get the current height and width of the elment
         // that will be containinig the svg
+        let w = svgContainer.current.offsetWidth;
+        let h = svgContainer.current.offsetHeight
         if (svgContainer.current) {
             setDimensions({
-                width: svgContainer.current.offsetWidth,
-                height: svgContainer.current.offsetHeight,
+                width: w,
+                height: h,
+                colorAndSize_state: true,
+                result: -23
             });
         }
+        axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/stocks`).then(res => {
+            // Data Preperation
+            let data = res.data.map(trade => ({
+                ...trade,
+                avatar: "/imgs/avatar.png",
+                x: Math.abs(Math.floor(Math.random() * (h - (r * 2)))),
+                y: Math.abs(Math.floor(Math.random() * (w - (r * 2)))),
+                result: Math.floor(Math.random() * 101) - 50, // Random number between -50 and 50
+                colorAndSize_state: Math.random() < 0.5 // Randomly return true or false
+            }));
 
-        // axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/stocks`).then(console.log).catch(console.error)
-        console.log(currentStocksInfo["Stock Quotes"])
+            console.log(data)
+            setSandP500(data)
+        }).catch(console.error)
 
     }, []);
 
-    useEffect(() => {
-        const { width, height } = dimensions
-        const r = 70
 
+
+    useEffect(() => {
+        const { width, height } = dimensions;
+        console.log(dimensions)
 
         const svg = d3.select("#svgContainer")
             .append("svg")
@@ -106,22 +85,13 @@ const Hero = () => {
             .attr("height", height);
 
         // Create dummy data -> just one element per circle
-        const data = [
-            { avatar: "/imgs/avatar.png", result: -23, name: "Stock 1", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", result: 45, name: "Stock 2", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", result: -12, name: "Stock 3", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", result: 34, name: "Hello World", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", result: 29, name: "Apple", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", result: -8, name: "Microsoft", colorAndSize_state: true, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", result: 17, name: "Azure", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) },
-            { avatar: "/imgs/avatar.png", result: 0, name: "FB", colorAndSize_state: false, x: Math.abs(Math.floor(Math.random() * (height - (r * 2)))), y: Math.abs(Math.floor(Math.random() * (width - (r * 2)))) }
-        ];
+
 
         // Filter
         // Define radial gradient for a bubble-like effect
         const defs = svg.append("defs");
 
-        data.forEach((d, i) => {
+        SandP500.forEach((d, i) => {
             // the Gradient Circle
             const gradient = defs.append("radialGradient")
                 .attr("id", `bubbleGradient-${i}`)
@@ -133,31 +103,31 @@ const Hero = () => {
             gradient.append("stop")
                 .attr("offset", "85%")
                 .attr("stop-color", () => {
-                    if (d.result == 0) {
+                    if (calculateTradePercentage(d.trade.results) == 0) {
                         // Nutral
-                        return "rgb(96, 76, 195,0.1)"
+                        return "rgb(171, 171, 171,0.1)"
 
-                    } else if (d.result > 0) {
-                        // Green
-                        return "rgb(143, 209, 79,0.1)"
+                    } else if (calculateTradePercentage(d.trade.results) > 0) {
+                        // Blue
+                        return "rgb(10, 190, 255,0.1)"
                     }
                     // Red
-                    return "rgb(255, 102,0, 0.1)"
+                    return "rgb(255, 10, 10, 0.3)"
                 })
 
             gradient.append("stop")
                 .attr("offset", "100%")
                 .attr("stop-color", () => {
-                    if (d.result == 0) {
+                    if (calculateTradePercentage(d.trade.results) == 0) {
                         // Nutral
-                        return "rgb(96, 76, 195,0.7)"
+                        return "rgb(171, 171, 171,0.7)"
 
-                    } else if (d.result > 0) {
-                        // Green
-                        return "rgb(143, 209, 79,0.7)"
+                    } else if (calculateTradePercentage(d.trade.results) > 0) {
+                        // Blue
+                        return "rgb(10, 190, 255,0.7)"
                     }
                     // Red
-                    return "rgb(255, 102, 0,0.7)"
+                    return "rgb(255, 10, 10,0.7)"
                 })
 
             // gradient.append("stop")
@@ -174,7 +144,7 @@ const Hero = () => {
 
         const node = svg.append("g")
             .selectAll("g")
-            .data(data)
+            .data(SandP500)
             .enter()
             .append("g")
             .call(d3.drag()
@@ -188,7 +158,7 @@ const Hero = () => {
             });
 
         node.append("circle")
-            .attr("r", d => (d.colorAndSize_state ? r : 40))
+            .attr("r", d => 20*Math.sqrt(Math.abs(calculateTradePercentage(d.trade.results))) + 40 )
             .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
             .attr("filter", "url(#bubbleBlur)")
             .attr("stroke", "rgba(255, 255, 255, 0.8)")
@@ -211,13 +181,22 @@ const Hero = () => {
             // .style("font-size", "12px")
             .style("font-size", "14px") // Control font size
             // Make text bold
-            .text(d => d.name);
+            .text(d => d.ticker);
+        node.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dy", "30") // Adjust text position below the avatar
+            .attr("class", "nunito-font")
+            .style("fill", "black")
+            // .style("font-size", "12px")
+            .style("font-size", "10px") // Control font size
+            // Make text bold
+            .text(d => `${calculateTradePercentage(d.trade.results)}%`);
 
-        const simulation = d3.forceSimulation(data)
-            .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("boundary", forceBoundary(20, 20, width - (r * 2), height - (r * 2)))
+        const simulation = d3.forceSimulation(SandP500)
+            // .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("boundary", forceBoundary(5, 5, width + (r * 2), height - (r * 2)))
             .force("charge", d3.forceManyBody().strength(1))
-            .force("collide", d3.forceCollide().strength(0.1).radius(80).iterations(1))
+            .force("collide", d3.forceCollide().strength(0.1).radius(60).iterations(1))
             .on("tick", () => {
                 node.attr("transform", d => `translate(${d.x}, ${d.y})`);
             });
@@ -237,12 +216,10 @@ const Hero = () => {
             d.fy = null;
         }
 
-
-
-    }, [dimensions])
+    }, [SandP500])
 
     return (
-        <div className="h-[80%]">
+        <div className="h-[90%]">
             <div ref={svgContainer} className="w-full h-full" id="svgContainer"></div>
             <div>
                 <Drawer open={openStock} onClose={() => setOpenStock(false)}>
