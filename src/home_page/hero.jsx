@@ -56,20 +56,45 @@ const Hero = () => {
                 result: -23
             });
         }
-        axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/stocks`).then(res => {
-            // Data Preperation
-            let data = res.data.map(trade => ({
-                ...trade,
-                avatar: "/imgs/avatar.png",
-                x: Math.abs(Math.floor(Math.random() * (h - (r * 2)))),
-                y: Math.abs(Math.floor(Math.random() * (w - (r * 2)))),
-                result: Math.floor(Math.random() * 101) - 50, // Random number between -50 and 50
-                colorAndSize_state: Math.random() < 0.5 // Randomly return true or false
-            }));
 
-            console.log(data)
-            setSandP500(data)
-        }).catch(console.error)
+        const eventSource = new EventSource(`${import.meta.env.VITE_SERVER_BASE_URL}/sandp`);
+
+        eventSource.onopen = () => {
+            console.log("Connection to /sandp SSE opened.");
+        };
+
+        eventSource.onmessage = (event) => {
+            console.log("Received data:", event.data);  // Debugging line
+
+            try {
+                const newTrade = JSON.parse(event.data);
+                console.log("New trade received:", newTrade);
+                // let trades = newTrade.trades;
+
+                setSandP500((prev) => [
+                    ...prev,
+                    {
+                        ...newTrade,
+                        avatar: "/imgs/avatar.png",
+                        x: Math.abs(Math.floor(Math.random() * (h - 50))),
+                        y: Math.abs(Math.floor(Math.random() * (w - 50))),
+                        result: Math.floor(Math.random() * 101) - 50, // Random number between -50 and 50
+                        colorAndSize_state: Math.random() < 0.5 // Random true/false
+                    }
+                ]);
+            } catch (err) {
+                console.error("Error parsing SSE data:", err);
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error("SSE Error:", error);
+            eventSource.close();
+        };
+
+        return () => {
+            eventSource.close(); // Cleanup the event source when the component unmounts
+        };
 
     }, []);
 
@@ -77,8 +102,8 @@ const Hero = () => {
 
     useEffect(() => {
         const { width, height } = dimensions;
-        console.log(dimensions)
 
+        d3.select("#svgContainer").selectAll("*").remove();
         const svg = d3.select("#svgContainer")
             .append("svg")
             .attr("width", width)
@@ -158,7 +183,7 @@ const Hero = () => {
             });
 
         node.append("circle")
-            .attr("r", d => 20*Math.sqrt(Math.abs(calculateTradePercentage(d.trade.results))) + 40 )
+            .attr("r", d => 20 * Math.sqrt(Math.abs(calculateTradePercentage(d.trade.results))) + 40)
             .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
             .attr("filter", "url(#bubbleBlur)")
             .attr("stroke", "rgba(255, 255, 255, 0.8)")
@@ -194,9 +219,9 @@ const Hero = () => {
 
         const simulation = d3.forceSimulation(SandP500)
             // .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("boundary", forceBoundary(5, 5, width + (r * 2), height - (r * 2)))
-            .force("charge", d3.forceManyBody().strength(1))
-            .force("collide", d3.forceCollide().strength(0.1).radius(60).iterations(1))
+            .force("boundary", forceBoundary(30, 30, width - (r * 2), height - (r * 2)))
+            .force("collide", d3.forceCollide().strength(0.1).radius(50))
+            // .force("charge", d3.forceManyBody().strength(1))
             .on("tick", () => {
                 node.attr("transform", d => `translate(${d.x}, ${d.y})`);
             });
