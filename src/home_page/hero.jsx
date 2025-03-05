@@ -36,7 +36,7 @@ function calculateTradePercentage(trades) {
 
 const Hero = () => {
 
-    const { activeTab, setActiveTab } = useContext(TabsContext);
+    const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
     const [SandP500, setSandP500] = useState([])
     const [dimensions, setDimensions] = useState({
         width: 0,
@@ -51,8 +51,9 @@ const Hero = () => {
         let h = svgContainer.current.offsetHeight
 
         setSandP500([])
-        const eventSource = new EventSource(`${import.meta.env.VITE_SERVER_BASE_URL}/${activeTab === 0 ? "sandp" : activeTab === 1 ? "ftse" : "sse"
-            }`);
+        console.log(activeFilterTab)
+        const eventSource = new EventSource(`${import.meta.env.VITE_SERVER_BASE_URL}/${activeTab === 0 ? "sandp" : "ftse" 
+            }?timestamp=${activeFilterTab.filter}&range_type=${activeFilterTab.label}`);
 
         eventSource.onmessage = (event) => {
             console.log("Received data:", event.data);  // Debugging line

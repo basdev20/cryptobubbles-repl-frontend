@@ -3,11 +3,16 @@ import TabsContext from "@/context/tabs";
 
 
 const Nav = () => {
-    const { activeTab, setActiveTab } = useContext(TabsContext);
+    const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
     };
+
+    const handleFilterTabClick = (tab) => {
+        setActiveFilterTab(tab);
+    };
+
 
     return (
         <div className="w-full relative">
@@ -19,9 +24,9 @@ const Nav = () => {
                     <div className="hidden lg:block">
                         <ul className="flex flex-col gap-2 mt-2 mb-4 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
                             <li className="flex items-center p-1 text-sm gap-x-2 text-slate-600">
-                                <a href="#" className="flex items-center">
+                                {/* <a href="#" className="flex items-center">
                                     Placeholder
-                                </a>
+                                </a> */}
                             </li>
                         </ul>
                     </div>
@@ -34,13 +39,13 @@ const Nav = () => {
                     </button>
                 </div>
             </nav>
-            <div className="tabs absolute right-1/2 transform translate-x-1/2 mt-1">
+            <div className="tabs absolute right-1/2 transform translate-x-1/2 ">
                 <div className="flex">
-                    <ul className="flex border bg-white border-gray-200 rounded-xl transition-all duration-300 -mb-px overflow-hidden">
+                    <ul className="flex border bg-white border-gray-200 rounded-xl rounded-t-none transition-all duration-300 -mb-px overflow-hidden">
                         {[
                             { id: 0, label: "S&P" },
                             { id: 1, label: "FTSE" },
-                            { id: 2, label: "SEE" }
+                            // { id: 2, label: "SEE" }
                         ].map((tab) => (
                             <li key={tab.id}>
                                 <a
@@ -52,6 +57,34 @@ const Nav = () => {
                                     className={`inline-block py-3 px-6 text-gray-500 hover:text-gray-800 font-medium border-r border-gray-200 whitespace-nowrap transition-all duration-300 ${activeTab === tab.id
                                         ? "bg-indigo-50 text-blue-600"
                                         : ""
+                                        }`}
+                                    data-tab={tab.id}
+                                    role="tab"
+                                >
+                                    {tab.label}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+            <div className="tabs absolute left-4 ">
+                <div className="flex">
+                    <ul className="flex border bg-white border-gray-200 rounded-xl rounded-t-none transition-all duration-300 -mb-px overflow-hidden">
+                        {[
+                            { id: 0, filter: new Date().toISOString().split('T')[0], label: "Day" },
+                            { id: 1, filter: "", label: "Week" },
+                            { id: 2, filter: "", label: "Month" },
+                            { id: 3, filter: "", label: "Year" }
+                        ].map((tab) => (
+                            <li key={tab.id}>
+                                <a
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handleFilterTabClick({ filter: tab.filter, label: tab.label ,id:tab.id});
+                                    }}
+                                    className={`inline-block py-3 px-6 text-gray-500 hover:text-gray-800 font-medium border-r border-gray-200 whitespace-nowrap transition-all duration-300 ${activeFilterTab.id === tab.id ? "bg-indigo-50 text-blue-600" : ""
                                         }`}
                                     data-tab={tab.id}
                                     role="tab"
