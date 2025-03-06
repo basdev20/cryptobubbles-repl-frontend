@@ -19,21 +19,6 @@ import { useContext } from "react";
 import TabsContext from "@/context/tabs";
 
 
-function calculateTradePercentage(trades) {
-    if (trades.length < 2) {
-        throw new Error("At least two trades are required to calculate profit/loss.");
-    }
-
-    // Get the first and last trade prices
-    let firstTradePrice = trades[trades.length - 1].price;
-    let lastTradePrice = trades[0].price;
-
-    // Calculate percentage change
-    let percentageChange = ((lastTradePrice - firstTradePrice) / firstTradePrice) * 100;
-
-    return percentageChange.toFixed(2);
-}
-
 const Hero = () => {
 
     const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
@@ -52,8 +37,8 @@ const Hero = () => {
 
         setSandP500([])
         console.log(activeFilterTab)
-        const eventSource = new EventSource(`${import.meta.env.VITE_SERVER_BASE_URL}/${activeTab === 0 ? "sandp" : "ftse" 
-            }?timestamp=${activeFilterTab.filter}&range_type=${activeFilterTab.label}`);
+        const eventSource = new EventSource(`${import.meta.env.VITE_SERVER_BASE_URL}/${activeTab === 0 ? "sandp" : "ftse"
+            }?range_type=${activeFilterTab.name}`);
 
         eventSource.onmessage = (event) => {
             console.log("Received data:", event.data);  // Debugging line
@@ -134,11 +119,11 @@ const Hero = () => {
             gradient.append("stop")
                 .attr("offset", "85%")
                 .attr("stop-color", () => {
-                    if (calculateTradePercentage(d.trade.results) == 0) {
+                    if (d.percentage == 0) {
                         // Nutral
                         return "rgb(171, 171, 171,0.1)"
 
-                    } else if (calculateTradePercentage(d.trade.results) > 0) {
+                    } else if (d.percentage > 0) {
                         // Green
                         return "rgb(5, 247, 163,0.1)"
                     }
@@ -149,11 +134,11 @@ const Hero = () => {
             gradient.append("stop")
                 .attr("offset", "100%")
                 .attr("stop-color", () => {
-                    if (calculateTradePercentage(d.trade.results) == 0) {
+                    if (d.percentage == 0) {
                         // Nutral
                         return "rgb(171, 171, 171,0.7)"
 
-                    } else if (calculateTradePercentage(d.trade.results) > 0) {
+                    } else if (d.percentage> 0) {
                         // Green
                         return "rgb(5, 247, 163,0.7)"
                     }
@@ -189,7 +174,7 @@ const Hero = () => {
             });
 
         node.append("circle")
-            .attr("r", d => 20 * Math.sqrt(Math.abs(calculateTradePercentage(d.trade.results))) + 40)
+            .attr("r", d => 10 * Math.sqrt(Math.abs(d.percentage)) + 40)
             .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
             .attr("filter", "url(#bubbleBlur)")
             .attr("stroke", "rgba(255, 255, 255, 0.8)")
@@ -221,7 +206,7 @@ const Hero = () => {
             // .style("font-size", "12px")
             .style("font-size", "10px") // Control font size
             // Make text bold
-            .text(d => `${calculateTradePercentage(d.trade.results)}%`);
+            .text(d => `${d.percentage}%`);
 
         const simulation = d3.forceSimulation(SandP500)
             // .force("center", d3.forceCenter(width / 2, height / 2))

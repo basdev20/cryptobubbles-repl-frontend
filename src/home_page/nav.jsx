@@ -72,17 +72,17 @@ const Nav = () => {
                 <div className="flex">
                     <ul className="flex border bg-white border-gray-200 rounded-xl rounded-t-none transition-all duration-300 -mb-px overflow-hidden">
                         {[
-                            { id: 0, filter: new Date().toISOString().split('T')[0], label: "Day", name: "day" },
-                            { id: 1, filter: "", label: "Week", name: "week" },
-                            { id: 2, filter: "", label: "Month", name: "month" },
-                            { id: 3, filter: "", label: "Year", name: "year" }
+                            { id: 0, label: "Day", name: "minute" },
+                            { id: 1, label: "Week", name: "day" },
+                            { id: 2, label: "Month", name: "week" },
+                            { id: 3, label: "Year", name: "month" }
                         ].map((tab) => (
                             <li key={tab.id}>
                                 <a
                                     href="#"
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        handleFilterTabClick({ filter: tab.filter, label: tab.label ,id:tab.id});
+                                        handleFilterTabClick({ name: tab.name, label: tab.label, id: tab.id });
                                     }}
                                     className={`inline-block py-3 px-6 text-gray-500 hover:text-gray-800 font-medium border-r border-gray-200 whitespace-nowrap transition-all duration-300 ${activeFilterTab.id === tab.id ? "bg-indigo-50 text-blue-600" : ""
                                         }`}

@@ -6,7 +6,7 @@ import { useState } from "react";
 function App() {
 
   const [activeTab, setActiveTab] = useState(0);
-  const [activeFilterTab, setActiveFilterTab] = useState({ id: 0, filter: new Date().toISOString().split('T')[0], label: "Day" });
+  const [activeFilterTab, setActiveFilterTab] = useState({ id: 0, name: "day", label: "Day" });
 
   return (
     <div className="h-screen w-full">
