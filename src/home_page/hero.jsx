@@ -72,7 +72,7 @@ const Hero = () => {
         return () => {
             eventSource.close(); // Cleanup the event source when the component unmounts
         };
-    }, [activeTab])
+    }, [activeTab,activeFilterTab])
 
     useEffect(() => {
 
