@@ -72,10 +72,10 @@ const Nav = () => {
                 <div className="flex">
                     <ul className="flex border bg-white border-gray-200 rounded-xl rounded-t-none transition-all duration-300 -mb-px overflow-hidden">
                         {[
-                            { id: 0, filter: new Date().toISOString().split('T')[0], label: "Day" },
-                            { id: 1, filter: "", label: "Week" },
-                            { id: 2, filter: "", label: "Month" },
-                            { id: 3, filter: "", label: "Year" }
+                            { id: 0, filter: new Date().toISOString().split('T')[0], label: "Day", name: "day" },
+                            { id: 1, filter: "", label: "Week", name: "week" },
+                            { id: 2, filter: "", label: "Month", name: "month" },
+                            { id: 3, filter: "", label: "Year", name: "year" }
                         ].map((tab) => (
                             <li key={tab.id}>
                                 <a
