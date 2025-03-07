@@ -23,6 +23,7 @@ const Hero = () => {
 
     const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
     const [SandP500, setSandP500] = useState([])
+    const [allData, setAllData] = useState([])
     const [dimensions, setDimensions] = useState({
         width: 0,
         height: 0,
@@ -36,43 +37,24 @@ const Hero = () => {
         let h = svgContainer.current.offsetHeight
 
         setSandP500([])
-        console.log(activeFilterTab)
-        const eventSource = new EventSource(`${import.meta.env.VITE_SERVER_BASE_URL}/${activeTab === 0 ? "sandp" : "ftse"
-            }?range_type=${activeFilterTab.name}`);
 
-        eventSource.onmessage = (event) => {
-            console.log("Received data:", event.data);  // Debugging line
+        axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/all-data`).then((res) => {
+            const allData = res.data.all;
+            setAllData(allData)
 
-            try {
-                const newTrade = JSON.parse(event.data);
-                console.log("New trade received:", newTrade);
-                // let trades = newTrade.trades;
+            let currentTrade = allData[activeTab == 0 ? 'sandp' : "ftse"][activeFilterTab == 0 ? 'day' : activeFilterTab == 1 ? 'week' : activeFilterTab == 2 ? 'month' : 'year']
 
-                setSandP500((prev) => [
-                    ...prev,
-                    {
-                        ...newTrade,
-                        avatar: "/imgs/avatar.png",
-                        x: Math.abs(Math.floor(Math.random() * (w - 50))),
-                        y: Math.abs(Math.floor(Math.random() * (h - 50))),
-                        // result: Math.floor(Math.random() * 101) - 50, // Random number between -50 and 50
-                        // colorAndSize_state: Math.random() < 0.5 // Random true/false
-                    }
-                ]);
-            } catch (err) {
-                console.error("Error parsing SSE data:", err);
-            }
-        };
+            setSandP500(currentTrade);
+            setSandP500(currentTrade.map(trade => (
+                { ...trade, avatar: "/imgs/avatar.png", x: Math.abs(Math.floor(Math.random() * (w - 50))), y: Math.abs(Math.floor(Math.random() * (h - 50))) }
+            )));
+        }).catch(console.error)
 
-        eventSource.onerror = (error) => {
-            console.error("SSE Error:", error);
-            eventSource.close();
-        };
 
-        return () => {
-            eventSource.close(); // Cleanup the event source when the component unmounts
-        };
-    }, [activeTab,activeFilterTab])
+
+
+
+    }, [activeTab, activeFilterTab])
 
     useEffect(() => {
 
@@ -92,144 +74,150 @@ const Hero = () => {
 
 
     useEffect(() => {
-        const { width, height } = dimensions;
+        if (SandP500.length) {
+            const { width, height } = dimensions;
+            console.warn("SandP500")
+            console.log(SandP500)
 
-        d3.select("#svgContainer").selectAll("*").remove();
-        const svg = d3.select("#svgContainer")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height);
+            d3.select("#svgContainer").selectAll("*").remove();
+            const svg = d3.select("#svgContainer")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height);
 
-        // Create dummy data -> just one element per circle
-
-
-        // Filter
-        // Define radial gradient for a bubble-like effect
-        const defs = svg.append("defs");
-
-        SandP500.forEach((d, i) => {
-            // the Gradient Circle
-            const gradient = defs.append("radialGradient")
-                .attr("id", `bubbleGradient-${i}`)
-                .attr("cx", "50%")
-                .attr("cy", "50%")
-                .attr("r", "50%");
-
-            // The margin of the white color in the gradient
-            gradient.append("stop")
-                .attr("offset", "85%")
-                .attr("stop-color", () => {
-                    if (d.percentage == 0) {
-                        // Nutral
-                        return "rgb(171, 171, 171,0.1)"
-
-                    } else if (d.percentage > 0) {
-                        // Green
-                        return "rgb(5, 247, 163,0.1)"
-                    }
-                    // Red
-                    return "rgb(255, 10, 10, 0.3)"
-                })
-
-            gradient.append("stop")
-                .attr("offset", "100%")
-                .attr("stop-color", () => {
-                    if (d.percentage == 0) {
-                        // Nutral
-                        return "rgb(171, 171, 171,0.7)"
-
-                    } else if (d.percentage> 0) {
-                        // Green
-                        return "rgb(5, 247, 163,0.7)"
-                    }
-                    // Red
-                    return "rgb(255, 10, 10,0.7)"
-                })
-
-            // gradient.append("stop")
-            //     .attr("offset", "100%")
-            //     .attr("stop-color", "rgba(25, 211, 162, 0.3)");
-        });
-
-        const filter = defs.append("filter")
-            .attr("id", "bubbleBlur");
+            // Create dummy data -> just one element per circle
 
 
-        filter.append("feGaussianBlur")
-            .attr("stdDeviation", 0.5);
+            // Filter
+            // Define radial gradient for a bubble-like effect
+            const defs = svg.append("defs");
 
-        const node = svg.append("g")
-            .selectAll("g")
-            .data(SandP500)
-            .enter()
-            .append("g")
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended)
-            )
-            .on("click", function (event, d) {
-                console.log("Node clicked:", d);
-                setOpenStock(d)
+            SandP500.forEach((d, i) => {
+                // the Gradient Circle
+                console.log(d)
+
+                const gradient = defs.append("radialGradient")
+                    .attr("id", `bubbleGradient-${i}`)
+                    .attr("cx", "50%")
+                    .attr("cy", "50%")
+                    .attr("r", "50%");
+
+                // The margin of the white color in the gradient
+                gradient.append("stop")
+                    .attr("offset", "85%")
+                    .attr("stop-color", () => {
+                        if (d.percentage == 0) {
+                            // Nutral
+                            return "rgb(171, 171, 171,0.1)"
+
+                        } else if (d.percentage > 0) {
+                            // Green
+                            return "rgb(5, 247, 163,0.1)"
+                        }
+                        // Red
+                        return "rgb(255, 10, 10, 0.3)"
+                    })
+
+                gradient.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", () => {
+                        if (d.percentage == 0) {
+                            // Nutral
+                            return "rgb(171, 171, 171,0.7)"
+
+                        } else if (d.percentage > 0) {
+                            // Green
+                            return "rgb(5, 247, 163,0.7)"
+                        }
+                        // Red
+                        return "rgb(255, 10, 10,0.7)"
+                    })
+
+                // gradient.append("stop")
+                //     .attr("offset", "100%")
+                //     .attr("stop-color", "rgba(25, 211, 162, 0.3)");
             });
 
-        node.append("circle")
-            .attr("r", d => 10 * Math.sqrt(Math.abs(d.percentage)) + 40)
-            .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
-            .attr("filter", "url(#bubbleBlur)")
-            .attr("stroke", "rgba(255, 255, 255, 0.8)")
-            .style("stroke-width", 2)
-            .style("opacity", 0.8);
+            const filter = defs.append("filter")
+                .attr("id", "bubbleBlur");
 
-        // Append avatar image above the text
-        node.append("image")
-            .attr("xlink:href", d => d.avatar) // Assuming 'avatar' contains the image URL
-            .attr("width", 30)
-            .attr("height", 30)
-            .attr("x", -15) // Center the image
-            .attr("y", -30); // Position above text with 15px margin
 
-        node.append("text")
-            .attr("text-anchor", "middle")
-            .attr("dy", "20") // Adjust text position below the avatar
-            .attr("class", "nunito-font")
-            .style("fill", "black")
-            // .style("font-size", "12px")
-            .style("font-size", "14px") // Control font size
-            // Make text bold
-            .text(d => d.ticker);
-        node.append("text")
-            .attr("text-anchor", "middle")
-            .attr("dy", "30") // Adjust text position below the avatar
-            .attr("class", "nunito-font")
-            .style("fill", "black")
-            // .style("font-size", "12px")
-            .style("font-size", "10px") // Control font size
-            // Make text bold
-            .text(d => `${d.percentage}%`);
+            filter.append("feGaussianBlur")
+                .attr("stdDeviation", 0.5);
 
-        const simulation = d3.forceSimulation(SandP500)
-            // .force("center", d3.forceCenter(width / 2, height / 2))
-            // .force("boundary", forceBoundary(50, 50, width + (r * 2), height + 30).strength(0.001))
-            .force("collide", d3.forceCollide().strength(0.1).radius(50))
-            // .force("charge", d3.forceManyBody().strength(1))
-            .on("tick", () => {
-                node.attr("transform", d => `translate(${d.x}, ${d.y})`);
-            });
+            const node = svg.append("g")
+                .selectAll("g")
+                .data(SandP500)
+                .enter()
+                .append("g")
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended)
+                )
+                .on("click", function (event, d) {
+                    console.log("Node clicked:", d);
+                    setOpenStock(d)
+                });
 
-        function dragstarted(event, d) {
-            if (!event.active) simulation.alphaTarget(0.03).restart();
-        }
+            node.append("circle")
+                .attr("r", d => 10 * Math.sqrt(Math.abs(d.percentage)) + 40)
+                .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
+                .attr("filter", "url(#bubbleBlur)")
+                .attr("stroke", "rgba(255, 255, 255, 0.8)")
+                .style("stroke-width", 2)
+                .style("opacity", 0.8);
 
-        function dragged(event, d) {
-            d.fx = event.x;
-            d.fy = event.y;
-        }
+            // Append avatar image above the text
+            node.append("image")
+                .attr("xlink:href", d => d.avatar) // Assuming 'avatar' contains the image URL
+                .attr("width", 30)
+                .attr("height", 30)
+                .attr("x", -15) // Center the image
+                .attr("y", -30); // Position above text with 15px margin
 
-        function dragended(event, d) {
-            if (!event.active) simulation.alphaTarget(0.03);
-            d.fx = null;
-            d.fy = null;
+            node.append("text")
+                .attr("text-anchor", "middle")
+                .attr("dy", "20") // Adjust text position below the avatar
+                .attr("class", "nunito-font")
+                .style("fill", "black")
+                // .style("font-size", "12px")
+                .style("font-size", "14px") // Control font size
+                // Make text bold
+                .text(d => d.ticker);
+            node.append("text")
+                .attr("text-anchor", "middle")
+                .attr("dy", "30") // Adjust text position below the avatar
+                .attr("class", "nunito-font")
+                .style("fill", "black")
+                // .style("font-size", "12px")
+                .style("font-size", "10px") // Control font size
+                // Make text bold
+                .text(d => `${d.percentage}%`);
+
+            const simulation = d3.forceSimulation(SandP500)
+                // .force("center", d3.forceCenter(width / 2, height / 2))
+                // .force("boundary", forceBoundary(50, 50, width + (r * 2), height + 30).strength(0.001))
+                .force("collide", d3.forceCollide().strength(0.1).radius(50))
+                // .force("charge", d3.forceManyBody().strength(1))
+                .on("tick", () => {
+                    node.attr("transform", d => `translate(${d.x}, ${d.y})`);
+                });
+
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.03).restart();
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0.03);
+                d.fx = null;
+                d.fy = null;
+            }
         }
 
     }, [SandP500])
