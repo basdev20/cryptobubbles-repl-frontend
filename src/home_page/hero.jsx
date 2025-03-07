@@ -24,6 +24,7 @@ const Hero = () => {
     const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
     const [SandP500, setSandP500] = useState([])
     const [allData, setAllData] = useState([])
+    const [selectedTicker,setSelectedTicker] = useState(null)
     const [dimensions, setDimensions] = useState({
         width: 0,
         height: 0,
@@ -76,8 +77,6 @@ const Hero = () => {
     useEffect(() => {
         if (SandP500.length) {
             const { width, height } = dimensions;
-            console.warn("SandP500")
-            console.log(SandP500)
 
             d3.select("#svgContainer").selectAll("*").remove();
             const svg = d3.select("#svgContainer")
@@ -94,7 +93,6 @@ const Hero = () => {
 
             SandP500.forEach((d, i) => {
                 // the Gradient Circle
-                console.log(d)
 
                 const gradient = defs.append("radialGradient")
                     .attr("id", `bubbleGradient-${i}`)
@@ -156,7 +154,7 @@ const Hero = () => {
                     .on("end", dragended)
                 )
                 .on("click", function (event, d) {
-                    console.log("Node clicked:", d);
+                    setSelectedTicker(d.ticker)
                     setOpenStock(d)
                 });
 
@@ -241,7 +239,7 @@ const Hero = () => {
                             <div className="px-3 flex flex-col lg:flex-row items-center justify-center gap-4">
                                 {/* Chart Section */}
                                 <div className="w-full lg:w-1/2">
-                                    <Chart />
+                                    <Chart selectedTicker={selectedTicker}/>
                                 </div>
 
                                 {/* Matrix and Selector Section */}
