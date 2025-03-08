@@ -6,17 +6,6 @@ import axios from 'axios';
 // Lightweight Charts™ Example: Floating Tooltip
 // https://tradingview.github.io/lightweight-charts/tutorials/how_to/tooltips
 
-function convertNanosecondsToUTC(nanoseconds) {
-    // Convert nanoseconds to milliseconds
-    const milliseconds = nanoseconds / 1e6;
-
-    // Create a Date object
-    const date = new Date(milliseconds);
-
-    // Format the date and time in UTC
-    return date.toISOString().replace('T', ' ').replace('Z', ' UTC');
-}
-
 
 const Chart = (props) => {
     const chartContainer = useRef();
@@ -52,10 +41,10 @@ const Chart = (props) => {
                 handleScroll: false, // Disable dragging (scrolling) on time axis
                 handleScale: false,  // Disable zooming on time axis
             },
-            // priceScale: {
-            //     position: 'left',
-            //     handleScale: false,  // Disable zooming on price axis
-            // },
+            priceScale: {
+                position: 'left',
+                handleScale: false,  // Disable zooming on price axis
+            },
             height: 250,
             // width: width,
         });
@@ -75,11 +64,16 @@ const Chart = (props) => {
         });
 
         axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/chart-data?ticker=${selectedTicker}`).then((res) => {
-            const { values } = res.data.results;
-            let data = values.map(item => ({
-                time: new Date(item.timestamp).toISOString().split('T')[0], // Convert timestamp to YYYY-MM-DD
-                value: parseFloat(item.value.toFixed(2)) // Format value to 2 decimal places
-            }));
+            const { results } = res.data;
+            // console.log(results)
+            let data = results.reverse().map(item =>{
+                console.log(new Date(item.t).toISOString().split('T')[0])
+                return {
+                
+                    time: new Date(item.t).toISOString().split('T')[0], // Convert timestamp to YYYY-MM-DD
+                    value: parseFloat(item.o.toFixed(2)) // Format value to 2 decimal places
+                }
+            });
 
             series.setData(data);
         }).catch(console.error);
@@ -96,7 +90,7 @@ const Chart = (props) => {
         toolTip.style.background = 'white';
         toolTip.style.color = 'black';
         toolTip.style.borderColor = '#EEEEEE';
-        // container.appendChild(toolTip);
+        container.appendChild(toolTip);
         container.querySelectorAll('a').forEach(a => a.remove()); // remove the water mark
 
         // update tooltip
@@ -116,12 +110,20 @@ const Chart = (props) => {
                 const dateStr = param.time;
                 toolTip.style.display = 'block';
                 const data = param.seriesData.get(series);
-                const price = data.price !== undefined ? data.price : data.close;
-                toolTip.innerHTML = `<div style="color: ${'#2962FF'}">Apple Inc.</div><div style="font-size: 24px; margin: 4px 0px; color: ${'white'}">
-                    ${Math.round(100 * price) / 100}
-                    </div><div style="color: ${'white'}">
-                    ${dateStr}
-                    </div>`;
+                const price = data.value;
+                toolTip.innerHTML = `
+                    <div>
+                        <div style="color:#2962FF">
+                            ${selectedTicker}
+                        </div>
+                        <div style="font-size: 15px; margin-top:1px; color:black">
+                            $${Math.round(100 * price) / 100}
+                        </div>
+                        <div style="color: black">
+                            ${dateStr}
+                        </div>
+                    </div>`
+                    ;
 
                 const coordinate = series.priceToCoordinate(price);
                 let shiftedCoordinate = param.point.x - 50;
