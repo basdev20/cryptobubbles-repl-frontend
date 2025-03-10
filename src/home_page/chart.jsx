@@ -1,16 +1,41 @@
 import { AreaSeries, BarSeries, BaselineSeries, createChart } from 'lightweight-charts';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useContext } from 'react';
 import axios from 'axios';
-
+import TabsContext from '@/context/tabs';
 
 // Lightweight Charts™ Example: Floating Tooltip
 // https://tradingview.github.io/lightweight-charts/tutorials/how_to/tooltips
 
+function formatTimestamp(dateStr) {
+    let timestamp = Number(dateStr); // Ensure it's a number
+
+    // Detect if the timestamp is in milliseconds (length > 10 means it's too large)
+    if (timestamp > 1e10) {
+        timestamp = Math.floor(timestamp / 1000); // Convert ms to seconds
+    }
+
+    const date = new Date(timestamp * 1000);
+
+    // Manually format the date in local time
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');  // Month is 0-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;  // "YYYY-MM-DD HH:MM:SS"
+}
 
 const Chart = (props) => {
     const chartContainer = useRef();
     const { selectedTicker } = props;
+    const { activeChartFilterTab } = useContext(TabsContext);
+
     useEffect(() => {
+
+        // Clean container
+        document.getElementById('container').replaceChildren();
 
         const chartOptions = {
             layout: {
@@ -23,30 +48,38 @@ const Chart = (props) => {
         const chart = createChart(document.getElementById('container'), chartOptions);
 
         chart.applyOptions({
-            crosshair: {
-                horzLine: { visible: false, labelVisible: false },
-                vertLine: { visible: true, labelVisible: false },
-            },
-            grid: {
-                vertLines: { visible: false },
-                horzLines: { visible: false },
+            leftPriceScale: {
+                visible: true,
+                borderVisible: false,
             },
             rightPriceScale: {
                 visible: false,
-                borderVisible: false,
-                entireTextOnly: true,
             },
             timeScale: {
-                visible: false,
-                handleScroll: false, // Disable dragging (scrolling) on time axis
-                handleScale: false,  // Disable zooming on time axis
+                borderVisible: false,
             },
-            priceScale: {
-                position: 'left',
-                handleScale: false,  // Disable zooming on price axis
+            crosshair: {
+                horzLine: {
+                    visible: false,
+                    labelVisible: false,
+                },
+                vertLine: {
+                    visible: true,
+                    style: 0,
+                    width: 2,
+                    color: 'rgba(32, 38, 46, 0.1)',
+                    labelVisible: false,
+                },
             },
-            height: 250,
-            // width: width,
+            // hide the grid lines
+            grid: {
+                vertLines: {
+                    visible: false,
+                },
+                horzLines: {
+                    visible: false,
+                },
+            },
         });
 
         const series = chart.addSeries(AreaSeries, {
@@ -63,24 +96,30 @@ const Chart = (props) => {
             },
         });
 
-        axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/chart-data?ticker=${selectedTicker}`).then((res) => {
+        axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/chart-data?ticker=${selectedTicker}&filter=${activeChartFilterTab.name}`).then((res) => {
             const { results } = res.data;
             // console.log(results)
-            let data = results.reverse().map(item =>{
-                console.log(new Date(item.t).toISOString().split('T')[0])
+            let data = results.map(item => {
                 return {
-                
-                    time: new Date(item.t).toISOString().split('T')[0], // Convert timestamp to YYYY-MM-DD
+
+                    time: item.t, // Convert timestamp to YYYY-MM-DD
                     value: parseFloat(item.o.toFixed(2)) // Format value to 2 decimal places
                 }
             });
 
             series.setData(data);
+
+            // Automatically zoom to fit the data
+            chart.timeScale().setVisibleRange({
+                from: results[0].t, // Earliest timestamp
+                to: results[results.length - 1].t // Latest timestamp
+            });
+
         }).catch(console.error);
 
         const container = document.getElementById('container');
 
-        const toolTipWidth = 80;
+        const toolTipWidth = 100;
         const toolTipHeight = 80;
         const toolTipMargin = 15;
 
@@ -120,7 +159,7 @@ const Chart = (props) => {
                             $${Math.round(100 * price) / 100}
                         </div>
                         <div style="color: black">
-                            ${dateStr}
+                            ${formatTimestamp(dateStr)}
                         </div>
                     </div>`
                     ;
@@ -151,7 +190,7 @@ const Chart = (props) => {
 
         chart.timeScale().fitContent();
 
-    }, [])
+    }, [activeChartFilterTab])
 
     return (
         <div ref={chartContainer} className='w-full h-[300px] relative' id='container'>

@@ -1,15 +1,17 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import { cn } from "@/lib/utils"
+import TabsContext from '@/context/tabs';
+
 
 export default function SmallRadioSelector() {
-  const [selectedOption, setSelectedOption] = useState("option1")
+  const { activeChartFilterTab, setActiveChartFilterTab } = useContext(TabsContext);
 
   const options = [
-    { id: "option1", label: "Hour", percentage: "25%" },
-    { id: "option2", label: "Day", percentage: "50%" },
-    { id: "option3", label: "Week", percentage: "75%" },
-    { id: "option4", label: "Month", percentage: "100%" },
-    { id: "option5", label: "Year", percentage: "100%" },
+    { id: 0, name: "hour", label: "Hour", percentage: "0%" },
+    { id: 1, name: "day", label: "Day", percentage: "25%" },
+    { id: 2, name: "week", label: "Week", percentage: "50%" },
+    { id: 3, name: "month", label: "Month", percentage: "75%" },
+    { id: 4, name: "year", label: "Year", percentage: "100%" },
   ]
 
   return (
@@ -18,10 +20,10 @@ export default function SmallRadioSelector() {
         <button
           key={option.id}
           type="button"
-          onClick={() => setSelectedOption(option.id)}
+          onClick={() => setActiveChartFilterTab(option)}
           className={cn(
             "relative size-20 flex flex-col items-center justify-center rounded-md text-xs border border-blue-600 cursor-pointer",
-            selectedOption === option.id ? "border-blue-700 bg-blue-600/10" : "border-border hover:border-primary/50",
+            activeChartFilterTab.id === option.id ? "border-blue-700 bg-blue-600/10" : "border-border hover:border-primary/50",
           )}
         >
           <span className="font-medium md:text-lg text-[11px] leading-none">{option.label}</span>
@@ -31,8 +33,8 @@ export default function SmallRadioSelector() {
             name="radio-group"
             id={option.id}
             value={option.id}
-            checked={selectedOption === option.id}
-            onChange={() => setSelectedOption(option.id)}
+            checked={activeChartFilterTab.id === option.id}
+            onChange={() => setActiveChartFilterTab(option)}
             className="sr-only"
           />
         </button>
