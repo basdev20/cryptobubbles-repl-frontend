@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import TabsContext from "@/context/tabs";
-
+import { FloatingTimeSelect } from "@/components/floating-time-select";
 
 const Nav = () => {
     const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
@@ -68,7 +68,7 @@ const Nav = () => {
                     </ul>
                 </div>
             </div>
-            <div className="tabs absolute left-4 ">
+            <div className="tabs absolute left-4 lg:block hidden">
                 <div className="flex">
                     <ul className="flex border bg-white border-gray-200 rounded-xl rounded-t-none transition-all duration-300 -mb-px overflow-hidden">
                         {[
@@ -96,6 +96,13 @@ const Nav = () => {
                     </ul>
                 </div>
             </div>
+
+            {/* hidden */}
+            {/* component */}
+            <div className="lg:hidden block">
+                <FloatingTimeSelect />
+            </div>
+
         </div>
     );
 }
