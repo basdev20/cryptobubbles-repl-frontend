@@ -24,14 +24,13 @@ const Hero = () => {
     const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
     const [SandP500, setSandP500] = useState([])
     const [allData, setAllData] = useState([])
-    const [selectedTicker,setSelectedTicker] = useState(null)
+    const [selectedTicker, setSelectedTicker] = useState(null)
     const [dimensions, setDimensions] = useState({
         width: 0,
         height: 0,
     });
     const svgContainer = useRef();
     const [openStock, setOpenStock] = useState(false)
-    const r = 70;
 
     useEffect(() => {
         let w = svgContainer.current.offsetWidth;
@@ -79,10 +78,11 @@ const Hero = () => {
             const { width, height } = dimensions;
 
             d3.select("#svgContainer").selectAll("*").remove();
+
             const svg = d3.select("#svgContainer")
                 .append("svg")
-                .attr("width", width)
-                .attr("height", height);
+                .attr("width", "100%")
+                .attr("height", "100%");
 
             // Create dummy data -> just one element per circle
 
@@ -158,8 +158,9 @@ const Hero = () => {
                     setOpenStock(d)
                 });
 
+            let fake_width = width > 800 ? 800 : width
             node.append("circle")
-                .attr("r", d => 10 * Math.sqrt(Math.abs(d.percentage)) + 40)
+                .attr("r", d => (fake_width * 0.001) * Math.sqrt(Math.abs(d.percentage)) + fake_width * 0.1)
                 .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
                 .attr("filter", "url(#bubbleBlur)")
                 .attr("stroke", "rgba(255, 255, 255, 0.8)")
@@ -193,14 +194,16 @@ const Hero = () => {
                 // Make text bold
                 .text(d => `${d.percentage}%`);
 
+
             const simulation = d3.forceSimulation(SandP500)
-                // .force("center", d3.forceCenter(width / 2, height / 2))
-                // .force("boundary", forceBoundary(50, 50, width + (r * 2), height + 30).strength(0.001))
+
                 .force("collide", d3.forceCollide().strength(0.1).radius(50))
-                // .force("charge", d3.forceManyBody().strength(1))
+                .force("x", d3.forceX().x(d => Math.max(20, Math.min(width - 20, d.x))))
+                .force("y", d3.forceY().y(d => Math.max(20, Math.min(height - 20, d.y))))
                 .on("tick", () => {
                     node.attr("transform", d => `translate(${d.x}, ${d.y})`);
                 });
+
 
             function dragstarted(event, d) {
                 if (!event.active) simulation.alphaTarget(0.03).restart();
@@ -224,7 +227,6 @@ const Hero = () => {
         <div className="h-[90%]">
             <div ref={svgContainer} className="w-full h-full" id="svgContainer"></div>
 
-
             <div>
                 <Drawer open={openStock} onClose={() => setOpenStock(false)}>
                     {/* <DrawerTrigger asChild>
@@ -239,7 +241,7 @@ const Hero = () => {
                             <div className="px-3 flex flex-col lg:flex-row items-center justify-center gap-4">
                                 {/* Chart Section */}
                                 <div className="w-full lg:w-1/2">
-                                    <Chart selectedTicker={selectedTicker}/>
+                                    <Chart selectedTicker={selectedTicker} />
                                 </div>
 
                                 {/* Matrix and Selector Section */}

@@ -1,19 +1,21 @@
 import * as React from "react";
+import { useContext } from "react";
 import { Filter, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import TabsContext from '@/context/tabs';
 
 const timeRanges = [
-  { value: "day", label: "Day" },
-  { value: "week", label: "Week" },
-  { value: "month", label: "Month" },
-  { value: "year", label: "Year" },
+  { id: 0, label: "Day", name: "minute" },
+  { id: 1, label: "Week", name: "day" },
+  { id: 2, label: "Month", name: "week" },
+  { id: 3, label: "Year", name: "month" },
 ];
 
 export function FloatingTimeSelect() {
+  const { activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("week");
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
@@ -26,16 +28,16 @@ export function FloatingTimeSelect() {
             className="w-[100px] justify-between shadow-md"
           >
             <Filter className="mr-2 h-4 w-4" />
-            {timeRanges.find((t) => t.value === value)?.label}
+            {timeRanges.find((t) => t.name === activeFilterTab.name)?.label}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[100px] p-0">
           {timeRanges.map((timeRange) => (
             <div
-              key={timeRange.value}
+              key={timeRange.id}
               className="flex items-center cursor-pointer px-3 py-2 hover:bg-gray-100"
               onClick={() => {
-                setValue(timeRange.value);
+                setActiveFilterTab(timeRange);
                 setOpen(false);
               }}
             >
@@ -43,7 +45,7 @@ export function FloatingTimeSelect() {
               <Check
                 className={cn(
                   "ml-auto h-4 w-4",
-                  value === timeRange.value ? "opacity-100" : "opacity-0"
+                  activeFilterTab.name === timeRange.name ? "opacity-100" : "opacity-0"
                 )}
               />
             </div>
