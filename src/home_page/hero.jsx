@@ -45,8 +45,8 @@ const Hero = () => {
             let currentTrade = allData[activeTab == 0 ? 'sandp' : "ftse"][activeFilterTab == 0 ? 'day' : activeFilterTab == 1 ? 'week' : activeFilterTab == 2 ? 'month' : 'year']
 
             setSandP500(currentTrade);
-            setSandP500(currentTrade.map(trade => (
-                { ...trade, avatar: "/imgs/avatar.png", x: Math.abs(Math.floor(Math.random() * (w - 50))), y: Math.abs(Math.floor(Math.random() * (h - 50))) }
+            setSandP500(currentTrade.map((trade, index) => (
+                { ...trade, id: index, avatar: "/imgs/avatar.png", x: Math.abs(Math.floor(Math.random() * (w - 50))), y: Math.abs(Math.floor(Math.random() * (h - 50))) }
             )));
         }).catch(console.error)
 
@@ -160,9 +160,11 @@ const Hero = () => {
 
             let fake_width = width > 800 ? 800 : width
             node.append("circle")
-                .attr("r", d =>  (fake_width * 0.002) * Math.pow(Math.abs(d.percentage), 0.7) + fake_width * 0.05)
+                .attr("r", d => (fake_width * 0.002) * Math.pow(Math.abs(d.percentage), 0.7) + fake_width * 0.05)
+                .attr("id", (d, i) => `bubble-${i}`)
                 .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
                 .attr("filter", "url(#bubbleBlur)")
+
                 .attr("stroke", "rgba(255, 255, 255, 0.8)")
                 .style("stroke-width", 2)
                 .style("opacity", 0.8);
@@ -177,7 +179,7 @@ const Hero = () => {
 
             node.append("text")
                 .attr("text-anchor", "middle")
-                .attr("dy", "20") // Adjust text position below the avatar
+                .attr("dy", "15") // Adjust text position below the avatar
                 .attr("class", "nunito-font responsive-bubbles")
                 .style("fill", "black")
                 // .style("font-size", "12px")
@@ -185,7 +187,7 @@ const Hero = () => {
                 .text(d => d.ticker);
             node.append("text")
                 .attr("text-anchor", "middle")
-                .attr("dy", "30") // Adjust text position below the avatar
+                .attr("dy", "25") // Adjust text position below the avatar
                 .attr("class", "nunito-font responsive-bubbles")
                 .style("fill", "black")
                 // .style("font-size", "12px")
@@ -195,22 +197,77 @@ const Hero = () => {
 
             const simulation = d3.forceSimulation(SandP500)
 
-                .force("collide", d3.forceCollide().strength(0.1).radius(50))
-                .force("x", d3.forceX().x(d => Math.max(20, Math.min(width - 20, d.x))))
-                .force("y", d3.forceY().y(d => Math.max(20, Math.min(height - 20, d.y))))
+                .force("collide", d3.forceCollide().strength(0.08).radius((d) => {
+                    const element = d3.select(`#bubble-${d.id}`);
+                    const r = parseFloat(element.attr('r')) || 0;
+
+                    return r * 0.8
+                }).iterations(20))
+                .force("BoundaryForce", customBoundaryForce(50, width, height))
+
                 .on("tick", () => {
                     node.attr("transform", d => `translate(${d.x}, ${d.y})`);
                 });
+            function customBoundaryForce(x0, width, height) {
+                return function () {
+                    SandP500.forEach((d) => {
+                        const element = d3.select(`#bubble-${d.id}`);
+                        // Extract the radius (r) from the SVG element
+                        const r = parseFloat(element.attr('r')) || 0;
+
+                        if (!d.x || !d.y || !d.vx || !d.vy) return;
+
+                        // Apply boundary constraints with bounce effect and extra force
+
+                        // Left boundary (considering the radius)
+                        if (d.x - r < x0) {
+                            d.x = r;  // Adjust so the bubble stays at the left boundary
+                            d.vx = Math.max(0, d.vx);  // Prevent further left movement
+                            d.vx -= 1.5;  // Apply extra force to push right when hitting left boundary
+                        } else if (d.x + r > width) { // Right boundary (considering the radius)
+                            d.x = width - r;  // Ensure bubble stays within the right boundary
+                            d.vx = Math.min(0, d.vx); // Prevent further right movement
+                            d.vx += 1.5;  // Apply extra force to push left when hitting right boundary
+                        }
+
+                        // Top boundary (considering the radius)
+                        if (d.y - r < 0) {
+                            d.y = r;  // Ensure bubble stays within the top boundary
+                            d.vy = Math.max(0, d.vy);  // Prevent further upward movement
+                            d.vy -= 1.5;  // Apply extra force to push down when hitting the top boundary
+                        } else if (d.y + r > height) { // Bottom boundary (considering the radius)
+                            d.y = height - r;  // Ensure bubble stays within the bottom boundary
+                            d.vy = Math.min(0, d.vy);  // Prevent further downward movement
+                            d.vy += 1.5;  // Apply extra force to push up when hitting the bottom boundary
+                        }
+                    });
+                };
+            }
+
+
+
 
 
             function dragstarted(event, d) {
                 if (!event.active) simulation.alphaTarget(0.03).restart();
             }
-
             function dragged(event, d) {
-                d.fx = event.x;
-                d.fy = event.y;
+                // Access the SVG element that corresponds to 'd'
+                const element = d3.select(`#bubble-${d.id}`);
+                // Extract the radius (r) from the SVG element
+                const r = parseFloat(element.attr('r')) || 0;  // Default to 0 if radius is not found
+                // Apply boundary constraints
+                const minX = r;  // Left boundary
+                const maxX = width - r;  // Right boundary (subtract radius to prevent overflow)
+                const minY = r;  // Top boundary
+                const maxY = height - r;  // Bottom boundary (subtract radius to prevent overflow)
+
+                // Update the position based on the drag event, but enforce boundaries
+                d.fx = Math.max(minX, Math.min(maxX, event.x));
+                d.fy = Math.max(minY, Math.min(maxY, event.y));
+
             }
+
 
             function dragended(event, d) {
                 if (!event.active) simulation.alphaTarget(0.03);
@@ -261,5 +318,7 @@ const Hero = () => {
         </div>
     );
 }
+
+
 
 export default Hero;
