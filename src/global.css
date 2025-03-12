@@ -127,3 +127,7 @@
   body {
     @apply bg-background text-foreground;}}
   
+
+.responsive-bubbles{
+  @apply md:text-[10px] text-[8px]
+}

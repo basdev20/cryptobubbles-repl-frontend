@@ -19,7 +19,7 @@ const Nav = () => {
             <nav className="max-w-screen-2xl px-4 py-2 mx-auto text-white bg-white shadow-sm lg:px-8 lg:py-3">
                 <div className="container flex flex-wrap items-center justify-between mx-auto text-slate-800">
                     <a href="#" className="nunito-font mr-4 block cursor-pointer py-1.5 text-base text-slate-800 font-semibold">
-                        Visual Stocks
+                        Stock Bubbles
                     </a>
                     <div className="hidden lg:block">
                         <ul className="flex flex-col gap-2 mt-2 mb-4 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">

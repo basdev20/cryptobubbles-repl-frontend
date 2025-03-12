@@ -160,7 +160,7 @@ const Hero = () => {
 
             let fake_width = width > 800 ? 800 : width
             node.append("circle")
-                .attr("r", d => (fake_width * 0.001) * Math.sqrt(Math.abs(d.percentage)) + fake_width * 0.1)
+                .attr("r", d =>  (fake_width * 0.002) * Math.pow(Math.abs(d.percentage), 0.7) + fake_width * 0.05)
                 .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
                 .attr("filter", "url(#bubbleBlur)")
                 .attr("stroke", "rgba(255, 255, 255, 0.8)")
@@ -178,19 +178,17 @@ const Hero = () => {
             node.append("text")
                 .attr("text-anchor", "middle")
                 .attr("dy", "20") // Adjust text position below the avatar
-                .attr("class", "nunito-font")
+                .attr("class", "nunito-font responsive-bubbles")
                 .style("fill", "black")
                 // .style("font-size", "12px")
-                .style("font-size", "14px") // Control font size
                 // Make text bold
                 .text(d => d.ticker);
             node.append("text")
                 .attr("text-anchor", "middle")
                 .attr("dy", "30") // Adjust text position below the avatar
-                .attr("class", "nunito-font")
+                .attr("class", "nunito-font responsive-bubbles")
                 .style("fill", "black")
                 // .style("font-size", "12px")
-                .style("font-size", "10px") // Control font size
                 // Make text bold
                 .text(d => `${d.percentage}%`);
 

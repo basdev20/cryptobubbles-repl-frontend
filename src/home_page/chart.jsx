@@ -65,6 +65,7 @@ const Chart = (props) => {
         axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/chart-data?ticker=${selectedTicker}&filter=${activeChartFilterTab.name}`)
             .then((res) => {
                 const { results } = res.data;
+                console.log(results)
                 let data = results.map(item => ({
                     time: item.t,
                     value: parseFloat(item.o.toFixed(2)),
