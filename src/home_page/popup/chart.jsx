@@ -32,7 +32,7 @@ const Chart = (props) => {
         const chartOptions = {
             layout: {
                 textColor: 'black',
-                background: { type: 'solid', color: 'white' },
+                background: { type: 'solid', color: 'transparent' }, // Transparent background
             },
         };
 
@@ -52,7 +52,7 @@ const Chart = (props) => {
 
         const series = chart.addSeries(AreaSeries, {
             topColor: '#2962FF',
-            bottomColor: 'rgba(41, 98, 255, 0.28)',
+            bottomColor: 'white',
             lineColor: '#2962FF',
             lineWidth: 2,
             crossHairMarkerVisible: false,
@@ -166,7 +166,7 @@ const Chart = (props) => {
 
     return (
         <div ref={chartContainer} className='w-full h-[300px] relative' id='container'>
-            <div className='absolute bottom-9 w-full left-0 z-40 bg-gradient-to-t from-white to-transparent h-[90px]' id='tooltip'></div>
+            {/* <div className='absolute bottom-9 w-full left-0 z-40 bg-gradient-to-t from-white to-transparent h-[90px]' id='tooltip'></div> */}
         </div>
     );
 };

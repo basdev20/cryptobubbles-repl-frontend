@@ -7,6 +7,8 @@ const Overview = () => {
 
     return (
         <div>
+            <h2 className="text-3xl font-bold">$209<span className="text-lg font-bold">.45</span></h2>
+
             <Chart selectedTicker={selectedTicker} />
         </div>
     );
