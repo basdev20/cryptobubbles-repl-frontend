@@ -1,17 +1,16 @@
 import axios from "axios";
-import { useEffect, useState, useRef, use } from "react";
+import { useEffect, useState, useRef } from "react";
 import * as d3 from 'd3';
-import forceBoundary from "d3-force-boundary"
-
+import Tabs from "@/components/custom/Tabs";
 
 import {
     Dialog,
     DialogContent,
 } from "@/components/ui/dialog"
 
-import Chart from "./chart";
-import SmallRadioSelector from "./menu-filter";
-import MatrixDisplay from "./matrix-displayer";
+import Chart from "./popup/chart";
+import SmallRadioSelector from "./popup/menu-filter";
+import MatrixDisplay from "./popup/matrix-displayer";
 import { useContext } from "react";
 import TabsContext from "@/context/tabs";
 
@@ -282,8 +281,23 @@ const Hero = () => {
 
             <div>
                 <Dialog open={openStock} onOpenChange={() => setOpenStock(false)}>
-                    <DialogContent>
-                        
+                    <DialogContent className="w-full bg-[#f7f7f7]">
+                        {/* Chart Section */}
+                        <div>
+                            <h2> <span className="font-medium">{selectedTicker}</span> . <span className="font-medium">Apple </span></h2>
+                            <p className="text-sm">iPhones & Macs</p>
+
+                        </div>
+                        <div className="flex">
+                            <Tabs tabs={[
+                                { id: 0, label: "Overview", content: <></> },
+                                { id: 1, label: "Financials", content:<></> },
+                                { id: 2, label: "News", content:<></> },
+                            ]} />
+                        </div>
+                        {/* <Chart selectedTicker={selectedTicker} /> */}
+
+
                     </DialogContent>
                 </Dialog>
             </div>
