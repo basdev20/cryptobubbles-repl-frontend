@@ -2,6 +2,7 @@ import { useContext } from "react";
 import TabsContext from "@/context/tabs";
 import { FloatingTimeSelect } from "@/components/floating-time-select";
 import { Progress } from "@/components/ui/progress"
+import Logo from "@/assets/logo.png";
 
 const Nav = () => {
     const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
@@ -20,7 +21,8 @@ const Nav = () => {
             <nav className="max-w-screen-2xl shadow-sm text-white bg-white">
                 <div className="px-4 py-2 mx-auto  lg:px-8 lg:py-3">
                     <div className="container flex flex-wrap items-center justify-between mx-auto text-slate-800">
-                        <a href="#" className="nunito-font mr-4 block cursor-pointer py-1.5 text-base text-slate-800 font-semibold">
+                        <a href="#" className="nunito-font mr-4 block cursor-pointer py-1.5 text-base text-slate-800 font-semibold center gap-2">
+                            <img src={Logo} alt="" className="size-10"/>
                             Stock Bubbles
                         </a>
                         <div className="hidden lg:block">
