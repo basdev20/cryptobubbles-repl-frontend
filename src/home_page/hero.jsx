@@ -2,16 +2,13 @@ import axios from "axios";
 import { useEffect, useState, useRef, use } from "react";
 import * as d3 from 'd3';
 import forceBoundary from "d3-force-boundary"
+
+
 import {
-    Drawer,
-    DrawerClose,
-    DrawerContent,
-    DrawerDescription,
-    DrawerFooter,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger,
-} from "@/components/ui/drawer"
+    Dialog,
+    DialogContent,
+} from "@/components/ui/dialog"
+
 import Chart from "./chart";
 import SmallRadioSelector from "./menu-filter";
 import MatrixDisplay from "./matrix-displayer";
@@ -70,8 +67,6 @@ const Hero = () => {
         }
 
     }, []);
-
-
 
     useEffect(() => {
         if (SandP500.length) {
@@ -214,6 +209,7 @@ const Hero = () => {
                 .on("tick", () => {
                     node.attr("transform", d => `translate(${d.x}, ${d.y})`);
                 });
+
             function customBoundaryForce(x0, width, height) {
                 return function () {
                     SandP500.forEach((d) => {
@@ -250,10 +246,6 @@ const Hero = () => {
                 };
             }
 
-
-
-
-
             function dragstarted(event, d) {
                 if (!event.active) simulation.alphaTarget(0.03).restart();
             }
@@ -275,7 +267,6 @@ const Hero = () => {
 
             }
 
-
             function dragended(event, d) {
                 if (!event.active) simulation.alphaTarget(0.03);
                 d.fx = null;
@@ -290,37 +281,11 @@ const Hero = () => {
             <div ref={svgContainer} className="w-full h-full" id="svgContainer"></div>
 
             <div>
-                <Drawer open={openStock} onClose={() => setOpenStock(false)}>
-                    {/* <DrawerTrigger asChild>
-                        <button variant="outline">Open Stats</button>
-                    </DrawerTrigger> */}
-                    <DrawerContent>
-                        <div className="w-full">
-                            {/* <DrawerHeader>
-                                <DrawerTitle>Stock Stats</DrawerTitle>
-                                <DrawerDescription>All diffrente matix are available ...</DrawerDescription>
-                            </DrawerHeader> */}
-                            <div className="px-3 flex flex-col lg:flex-row items-center justify-center gap-4">
-                                {/* Chart Section */}
-                                <div className="w-full lg:w-1/2">
-                                    <Chart selectedTicker={selectedTicker} />
-                                </div>
-
-                                {/* Matrix and Selector Section */}
-                                <div className="w-full lg:w-1/2 h-full px-2 flex flex-col gap-4">
-                                    <MatrixDisplay />
-                                    <SmallRadioSelector />
-                                </div>
-                            </div>
-
-                            {/* <DrawerFooter>
-                                <DrawerClose asChild>
-                                    <button variant="outline">Cancel</button>
-                                </DrawerClose>
-                            </DrawerFooter> */}
-                        </div>
-                    </DrawerContent>
-                </Drawer>
+                <Dialog open={openStock} onOpenChange={() => setOpenStock(false)}>
+                    <DialogContent>
+                        
+                    </DialogContent>
+                </Dialog>
             </div>
         </div>
     );
