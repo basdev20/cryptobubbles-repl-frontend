@@ -3,6 +3,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 import * as d3 from 'd3';
 import Tabs from "@/components/custom/Tabs";
 import SelectedElementsContext from "@/context/selected";
+import News from "./tabs/news";
 
 import {
     Dialog,
@@ -294,7 +295,7 @@ const Hero = () => {
                                         <Tabs tabs={[
                                             { id: 0, label: "Overview", content: <Overview /> },
                                             { id: 1, label: "Financials", content: <></> },
-                                            { id: 2, label: "News", content: <></> },
+                                            { id: 2, label: "News", content: <News /> },
                                         ]} />
                                     </div>
                                 </>

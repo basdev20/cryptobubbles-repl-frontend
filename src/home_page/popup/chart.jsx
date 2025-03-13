@@ -65,7 +65,6 @@ const Chart = (props) => {
         axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/chart-data?ticker=${selectedTicker.ticker}&filter=${activeChartFilterTab.name}`)
             .then((res) => {
                 const { results } = res.data;
-                console.log(results)
                 let data = results.map(item => ({
                     time: item.t,
                     value: parseFloat(item.o.toFixed(2)),
@@ -127,7 +126,7 @@ const Chart = (props) => {
                 toolTip.innerHTML = `
                     <div>
                         <div style="color:#2962FF">
-                            ${selectedTicker}
+                            ${selectedTicker.ticker}
                         </div>
                         <div style="font-size: 15px; margin-top:1px; color:black">
                             $${Math.round(100 * price) / 100}
