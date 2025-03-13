@@ -39,7 +39,7 @@ export default function Tabs({ tabs }) {
                         key={tab.id}
                         ref={(el) => (tabsRef.current[index] = el)}
                         onClick={() => setActiveTab(index)}
-                        className={`relative z-10 px-4 py-2 text-center text-sm font-medium transition-colors duration-300 ${
+                        className={`relative z-10 px-4 py-2 text-center cursor-pointer text-sm font-medium transition-colors duration-300 ${
                             activeTab === index ? "text-black" : "text-gray-500 dark:hover:text-darkPrimary hover:text-primary"
                         }`}
                     >
