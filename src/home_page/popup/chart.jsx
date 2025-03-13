@@ -47,7 +47,7 @@ const Chart = (props) => {
                 vertLine: { visible: true, style: 0, width: 2, color: 'rgba(32, 38, 46, 0.1)', labelVisible: true },
             },
             grid: { vertLines: { visible: false }, horzLines: { visible: false } },
-            height: 270
+            height: 295
         });
 
         const series = chart.addSeries(AreaSeries, {
@@ -62,7 +62,7 @@ const Chart = (props) => {
             scaleMargins: { top: 0.3, bottom: 0.25 },
         });
 
-        axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/chart-data?ticker=${selectedTicker}&filter=${activeChartFilterTab.name}`)
+        axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/chart-data?ticker=${selectedTicker.ticker}&filter=${activeChartFilterTab.name}`)
             .then((res) => {
                 const { results } = res.data;
                 console.log(results)

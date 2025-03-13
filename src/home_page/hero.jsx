@@ -147,7 +147,7 @@ const Hero = () => {
                     .on("end", dragended)
                 )
                 .on("click", function (event, d) {
-                    setSelectedTicker(d.ticker)
+                    setSelectedTicker(d)
                     setOpenStock(d)
                 });
 
@@ -282,18 +282,24 @@ const Hero = () => {
                 <Dialog open={openStock} onOpenChange={() => setOpenStock(false)}>
                     <DialogContent className="w-full bg-[#f7f7f7]">
                         {/* Chart Section */}
-                        <div>
-                            <h2> <span className="font-medium">{selectedTicker}</span> . <span className="font-medium">Apple </span></h2>
-                            <p className="text-sm">iPhones & Macs</p>
+                        {
+                            selectedTicker ?
+                                <>
+                                    <div>
+                                        <h2> <span className="font-medium">{selectedTicker.ticker}</span> . <span className="font-medium">{selectedTicker.name} </span></h2>
+                                        <p className="text-sm">{selectedTicker.sector}</p>
 
-                        </div>
-                        <div>
-                            <Tabs tabs={[
-                                { id: 0, label: "Overview", content: <Overview /> },
-                                { id: 1, label: "Financials", content: <></> },
-                                { id: 2, label: "News", content: <></> },
-                            ]} />
-                        </div>
+                                    </div>
+                                    <div>
+                                        <Tabs tabs={[
+                                            { id: 0, label: "Overview", content: <Overview /> },
+                                            { id: 1, label: "Financials", content: <></> },
+                                            { id: 2, label: "News", content: <></> },
+                                        ]} />
+                                    </div>
+                                </>
+                                : ""
+                        }
                         {/*  */}
 
 

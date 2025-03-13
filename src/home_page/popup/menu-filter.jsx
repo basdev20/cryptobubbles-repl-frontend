@@ -1,45 +1,40 @@
-import { useState, useContext } from "react"
-import { cn } from "@/lib/utils"
+import { useState, useContext } from "react";
+import { cn } from "@/lib/utils";
 import TabsContext from '@/context/tabs';
 
-
-export default function SmallRadioSelector() {
+export default function MenuFilter() {
   const { activeChartFilterTab, setActiveChartFilterTab } = useContext(TabsContext);
 
   const options = [
-    { id: 0, name: "hour", label: "Hour", percentage: "0%" },
-    { id: 1, name: "day", label: "Day", percentage: "25%" },
-    { id: 2, name: "week", label: "Week", percentage: "50%" },
-    { id: 3, name: "month", label: "Month", percentage: "75%" },
-    { id: 4, name: "year", label: "Year", percentage: "100%" },
-  ]
+    { id: 0, name: "hour", label: "1H" },
+    { id: 1, name: "day", label: "1D" },
+    { id: 2, name: "week", label: "1W" },
+    { id: 3, name: "month", label: "1M" },
+    { id: 4, name: "year", label: "1Y" },
+  ];
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="relative flex items-center space-x-2 bg-gray-200/30 rounded-full p-1 w-72">
+      {/* Sliding indicator */}
+      <div
+        className="absolute top-0 bottom-0 w-[20%] bg-white rounded-full transition-all duration-300"
+        style={{
+          left: `${(activeChartFilterTab.id / options.length) * 100}%`,
+        }}
+      />
       {options.map((option) => (
-        <button
+        <div
           key={option.id}
           type="button"
           onClick={() => setActiveChartFilterTab(option)}
           className={cn(
-            "relative size-20 flex flex-col items-center justify-center rounded-md text-xs border border-blue-600 cursor-pointer",
-            activeChartFilterTab.id === option.id ? "border-blue-700 bg-blue-600/10" : "border-border hover:border-primary/50",
+            "relative flex-1 z-10 text-sm font-medium cursor-pointer  text-gray-500 transition-colors center",
+            activeChartFilterTab.id === option.id ? "text-black font-bold" : "hover:text-gray-700"
           )}
         >
-          <span className="font-medium md:text-lg text-[11px] leading-none">{option.label}</span>
-          <span className="text-[10px] mt-1 text-muted-foreground">{option.percentage}</span>
-          <input
-            type="radio"
-            name="radio-group"
-            id={option.id}
-            value={option.id}
-            checked={activeChartFilterTab.id === option.id}
-            onChange={() => setActiveChartFilterTab(option)}
-            className="sr-only"
-          />
-        </button>
+          {option.label}
+        </div>
       ))}
     </div>
-  )
+  );
 }
-
