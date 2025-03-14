@@ -32,7 +32,7 @@ const News = () => {
                                                 <a href={_new.article_url} className="text-sm cursor-pointer font-medium">
                                                     {minimizeText(_new.title)}
                                                 </a>
-                                                <p className="text-gray-500 text-sm flex">23:06 <Dot /> {_new.author}</p>
+                                                <p className="text-gray-500 text-sm flex">{_new.time} <Dot /> {_new.author}</p>
                                             </div>
                                             <img className="size-20 rounded-2xl" src={_new.image_url} alt="" />
                                         </div>
