@@ -34,14 +34,16 @@ jobs:
               sudo apt update && sudo apt install -y docker.io
           fi
 
-          # Kill existing screen session if it exists
-          if screen -ls | grep -q ""; then
-              echo "🖥️  Stopping existing screen session..."
+          # Check if the screen session exists before trying to kill it
+          if screen -ls | grep -q "production"; then
+              echo "🖥️ Stopping existing screen session..."
               screen -S production -X quit
           fi
-
+          
           # Start a new screen session for deployment
-          screen -dmS production bash -c '
+          echo "🖥️ Starting a new screen session for deployment..."
+          screen -dmS production bash -c 'your_deployment_command_here'
+
           
           echo "📦 Pulling latest changes..."
           cd ~/stock-viz-docker || { echo "❌ Directory not found"; exit 1; }
