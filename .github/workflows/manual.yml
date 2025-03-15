@@ -42,8 +42,7 @@ jobs:
           
           # Start a new screen session for deployment
           echo "🖥️ Starting a new screen session for deployment..."
-          screen -dmS production bash -c 'your_deployment_command_here'
-
+          screen -dmS production bash -c '
           
           echo "📦 Pulling latest changes..."
           echo "Pwd command"
