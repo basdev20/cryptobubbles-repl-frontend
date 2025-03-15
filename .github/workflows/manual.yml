@@ -19,13 +19,12 @@ jobs:
           chmod 600 private_key.pem
 
       - name: Connect to EC2 and Run Command
-        run: ssh -o StrictHostKeyChecking=no -i private_key.pem ${{secrets.USERNAME}}@${{ secrets.EC2_PUBLIC_IP }} "echo '✅ SSH Connection Successful!'"
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} "echo '✅ SSH Connection Successful!'"
       
       # Step 4: SSH into EC2 and Deploy in a Screen Session
       - name: Deploy to EC2
         run: |
-
-
           echo "🚀 Starting Deployment..."
 
           # Ensure Docker is installed
@@ -61,9 +60,6 @@ jobs:
 
           echo "✅ Deployment Successful!"
           docker-compose ps
-
           '
 
           echo "✅ Deployment is running in screen session: production"
-
-          EOF
