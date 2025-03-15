@@ -44,7 +44,7 @@ const Nav = () => {
                     </div>
                 </div>
                 <div className="w-full">
-                    <Progress value={30} className="h-1 mt-0.5" />
+                    <Progress value={50} className="h-1 mt-0.5" />
 
                 </div>
             </nav>

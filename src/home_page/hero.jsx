@@ -155,7 +155,12 @@ const Hero = () => {
             let fake_width = width > 800 ? 800 : width
 
             node.append("circle")
-                .attr("r", d => (fake_width * 0.002) * Math.pow(Math.abs(d.percentage), 0.7) + fake_width * 0.05)
+                .attr("r", d => {
+                    let size = calculateBubbleSize(width, height, SandP500, d)
+                    d.hideInfo = size < 35;
+
+                    return size
+                })
                 .attr("id", (d, i) => `bubble-${i}`)
                 .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
                 .attr("filter", "url(#bubbleBlur)")
@@ -164,13 +169,31 @@ const Hero = () => {
                 .style("stroke-width", 2)
                 .style("opacity", 0.8);
 
+            function calculateBubbleSize(width, height, bubbles, bubble) {
+                const count = bubbles.length;
+                const average = bubbles.reduce((sum, obj) => sum + obj.percentage, 0) / count;
+
+                const params = calculateParams()
+
+                const Q = average - bubble.percentage > 0 ? params[0] : params[1];
+                const bias = 35;
+
+                function calculateParams() {
+                    return [width > 1200 && height > 600 ? 0.3 : 0.1, width > 1200 && height > 600 ? 0.4 : 0.1]; // Return 0 if either s1 or s2 is invalid
+                }
+
+
+                return ((bubble.percentage / count) * (Math.abs(average - bubble.percentage) * Q)) + bias
+
+            }
+
             // Append avatar image above the text
             node.append("image")
                 .attr("xlink:href", d => d.avatar) // Assuming 'avatar' contains the image URL
                 .attr("width", 30)
                 .attr("height", 30)
-                .attr("x", -15) // Center the image
-                .attr("y", -30); // Position above text with 15px margin
+                .attr("x", d => d.hideInfo ? -15 : -15) // Center the image
+                .attr("y", d => d.hideInfo ? -15 : -30); // Position above text with 15px margin 
 
             node.append("text")
                 .attr("text-anchor", "middle")
@@ -179,7 +202,7 @@ const Hero = () => {
                 .style("fill", "black")
                 // .style("font-size", "12px")
                 // Make text bold
-                .text(d => d.ticker);
+                .text(d => !d.hideInfo ? d.ticker : "");
             node.append("text")
                 .attr("text-anchor", "middle")
                 .attr("dy", "25") // Adjust text position below the avatar
@@ -187,7 +210,7 @@ const Hero = () => {
                 .style("fill", "black")
                 // .style("font-size", "12px")
                 // Make text bold
-                .text(d => `${d.percentage}%`);
+                .text(d => !d.hideInfo ? `${d.percentage}%` : "");
 
 
             const simulation = d3.forceSimulation(SandP500)
@@ -208,6 +231,17 @@ const Hero = () => {
                 .on("tick", () => {
                     node.attr("transform", d => `translate(${d.x}, ${d.y})`);
                 });
+
+            setInterval(() => {
+                const randomX = (Math.random() - 0.5) * 2; // Random value between -1 and 1
+                const randomY = (Math.random() - 0.5) * 2; // Random value between -1 and 1
+
+                simulation
+                    .force("x", d3.forceX(d => width / 2 + randomX * width * 0.3).strength(0.005))
+                    .force("y", d3.forceY(d => height / 2 + randomY * height * 0.3).strength(0.005))
+                    .alpha(1) // Restart the simulation with full energy
+                    .restart();
+            }, 10000);
 
             function customBoundaryForce(x0, width, height) {
                 return function () {
