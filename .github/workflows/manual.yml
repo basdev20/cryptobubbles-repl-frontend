@@ -46,7 +46,7 @@ jobs:
 
           
           echo "📦 Pulling latest changes..."
-          cd ~/stock-viz-docker || { echo "❌ Directory not found"; exit 1; }
+          cd /home/ubuntu/stock-viz-docker || { echo "❌ Directory not found"; exit 1; }
           git fetch --all
           git reset --hard origin/main || { echo "❌ Git pull failed"; exit 1; }
           git submodule update --recursive --remote || { echo "❌ Submodule update failed"; exit 1; }
