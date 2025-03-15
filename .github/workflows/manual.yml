@@ -37,29 +37,29 @@ jobs:
           # Kill existing screen session if it exists
           if screen -ls | grep -q ""; then
               echo "🖥️  Stopping existing screen session..."
-              screen -S regXperienceScreen -X quit
+              screen -S production -X quit
           fi
 
           # Start a new screen session for deployment
-          screen -dmS regXperienceScreen bash -c '
+          screen -dmS production bash -c '
           
           echo "📦 Pulling latest changes..."
-          cd ~/regXperience || { echo "❌ Directory not found"; exit 1; }
+          cd ~/stock-viz-docker || { echo "❌ Directory not found"; exit 1; }
           git fetch --all
           git reset --hard origin/main || { echo "❌ Git pull failed"; exit 1; }
+          git submodule update --recursive --remote || { echo "❌ Submodule update failed"; exit 1; }
 
-          echo "🛑 Stopping existing container..."
-          docker stop nextjs-container || true
-          docker rm nextjs-container || true
+          echo "🛑 Stopping existing containers and cleaning up resources..."
+          docker-compose down --volumes --rmi all --remove-orphans || true
 
-          echo "🔨 Building and running Next.js app..."
-          docker build -t nextjs-app .
-          docker run -d -p 3000:3000 --name nextjs-container --restart always nextjs-app
+          echo "🔨 Building and running Next.js app and other services..."
+          docker-compose up -d --build || { echo "❌ Deployment failed"; exit 1; }
 
           echo "✅ Deployment Successful!"
-          docker ps
+          docker-compose ps
+
           '
 
-          echo "✅ Deployment is running in screen session: regXperienceScreen"
+          echo "✅ Deployment is running in screen session: production"
 
           EOF
