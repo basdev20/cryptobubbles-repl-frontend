@@ -54,25 +54,7 @@ jobs:
 
           # Start a new screen session
           echo "🚀 Starting new screen session for deployment..."
-          screen -L -Logfile ~/deploy.log -S production -dm bash -c '
-          
-          echo "📦 Pulling latest changes..."
-          cd /home/ubuntu/stock-viz-docker || { echo "❌ Directory not found"; exit 1; }
-          git reset --hard
-          git pull origin main || { echo "❌ Git pull failed"; exit 1; }
-          git submodule update --recursive --remote || { echo "❌ Submodule update failed"; exit 1; }
+          screen -L -Logfile ~/deploy.log -S production -dm bash -c 'echo "Hello world"'
 
-          echo "🛑 Stopping existing containers..."
-          docker compose down --volumes --rmi all --remove-orphans || true
+ 
 
-          echo "🔨 Building and running Next.js app and other services..."
-          docker compose up -d --build || { echo "❌ Deployment failed"; exit 1; }
-
-          echo "✅ Deployment Successful!"
-          docker compose ps
-          '
-
-          echo "✅ Deployment started in screen session: production"
-          echo "🔍 Check logs using: screen -r production or cat ~/deploy.log"
-
-          EOF
