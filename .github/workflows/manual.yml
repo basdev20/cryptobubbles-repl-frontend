@@ -2,31 +2,39 @@ name: Deploy to AWS EC2
 on:
   push:
     branches:
-      - main  # Adjust branch if needed
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Setup SSH Key
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
-      - name: Connect to EC2 and Run Command
-        run: ssh -o StrictHostKeyChecking=no -i private_key.pem {{secrets.USERNAME}}@${{ secrets.EC2_PUBLIC_IP }} "echo '✅ SSH Connection Successful!'"
-      
-      # Step 4: SSH into EC2 and Deploy in a Screen Session
-      - name: Deploy to EC2
+      - name: Connect to EC2 and Run Deployment
         run: |
+          echo "🚀 Connecting to EC2..."
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.USERNAME }}@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          
+          echo "✅ SSH Connection Established!"
 
+          # Debugging: Check if screen exists
+          if ! command -v screen &> /dev/null; then
+              echo "⚠️ Screen is not installed. Installing now..."
+              sudo apt update && sudo apt install -y screen
+          else
+              echo "✅ Screen is installed."
+          fi
 
-          echo "🚀 Starting Deployment..."
+          # Debugging: Check existing screen sessions
+          echo "🖥️ Checking existing screen sessions..."
+          screen -ls || echo "No active screen sessions."
 
           # Ensure Docker is installed
           if ! command -v docker &> /dev/null; then
@@ -34,32 +42,42 @@ jobs:
               sudo apt update && sudo apt install -y docker.io
           fi
 
-          # Kill existing screen session if it exists
-          if screen -ls | grep -q ""; then
-              echo "🖥️  Stopping existing screen session..."
-              screen -S regXperienceScreen -X quit
+          # Stop the existing screen session if running
+          if screen -ls | grep -q "production"; then
+              echo "🛑 Stopping existing screen session..."
+              screen -S production -X quit
           fi
 
-          # Start a new screen session for deployment
-          screen -dmS regXperienceScreen bash -c '
+          # Debugging: Recheck screen sessions after killing
+          echo "🖥️ Active screen sessions after stopping:"
+          screen -ls || echo "No active screen sessions."
+
+          # Start a new screen session
+          echo "🚀 Starting new screen session for deployment..."
+          screen -L -Logfile ~/deploy_front.log -S production -dm bash -c '
           
           echo "📦 Pulling latest changes..."
-          cd ~/regXperience || { echo "❌ Directory not found"; exit 1; }
-          git fetch --all
-          git reset --hard origin/main || { echo "❌ Git pull failed"; exit 1; }
+          cd /home/ubuntu/stock-viz-docker || { echo "❌ Directory not found"; exit 1; }
+          git reset --hard
+          git pull origin main || { echo "❌ Git pull failed"; exit 1; }
+          git submodule update --recursive --remote || { echo "❌ Submodule update failed"; exit 1; }
 
-          echo "🛑 Stopping existing container..."
-          docker stop nextjs-container || true
-          docker rm nextjs-container || true
+          echo "📄 Creating .env file..."
+          cat <<EOT > .env
+          VITE_SERVER_BASE_URL="http://16.16.173.247:8000"
+          EOT
 
-          echo "🔨 Building and running Next.js app..."
-          docker build -t nextjs-app .
-          docker run -d -p 3000:3000 --name nextjs-container --restart always nextjs-app
+          echo "🛑 Stopping existing containers..."
+          sudo docker compose down --volumes --rmi all --remove-orphans || true
+
+          echo "🔨 Building and running Next.js app and other services..."
+          sudo docker compose up -d --build || { echo "❌ Deployment failed"; exit 1; }
 
           echo "✅ Deployment Successful!"
-          docker ps
+          sudo docker compose ps
           '
 
-          echo "✅ Deployment is running in screen session: regXperienceScreen"
+          echo "✅ Deployment started in screen session: production"
+          echo "🔍 Check logs using: screen -r production or cat ~/deploy.log"
 
           EOF
