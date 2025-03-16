@@ -62,6 +62,11 @@ jobs:
           git pull origin main || { echo "❌ Git pull failed"; exit 1; }
           git submodule update --recursive --remote || { echo "❌ Submodule update failed"; exit 1; }
 
+          echo "📄 Creating .env file..."
+          cat <<EOT > .env
+          VITE_SERVER_BASE_URL="http://localhost:8000"
+          EOT
+
           echo "🛑 Stopping existing containers..."
           sudo docker compose down --volumes --rmi all --remove-orphans || true
 
