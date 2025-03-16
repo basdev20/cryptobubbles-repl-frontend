@@ -54,7 +54,7 @@ jobs:
 
           # Start a new screen session
           echo "🚀 Starting new screen session for deployment..."
-          screen -L -Logfile ~/deploy.log -S production -dm bash -c '
+          screen -L -Logfile ~/deploy_front.log -S production -dm bash -c '
           
           echo "📦 Pulling latest changes..."
           cd /home/ubuntu/stock-viz-docker || { echo "❌ Directory not found"; exit 1; }
