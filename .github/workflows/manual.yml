@@ -64,7 +64,7 @@ jobs:
 
           echo "📄 Creating .env file..."
           cat <<EOT > .env
-          VITE_SERVER_BASE_URL="http://localhost:8000"
+          VITE_SERVER_BASE_URL="http://16.16.173.247:8000"
           EOT
 
           echo "🛑 Stopping existing containers..."
