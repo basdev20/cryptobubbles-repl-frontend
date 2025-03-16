@@ -44,9 +44,6 @@ jobs:
           screen -S production -dm bash -c '
           
           echo "📦 Pulling latest changes..."
-          echo "Pwd command"
-          pwd
-          echo "after Pwd"
           cd /home/ubuntu/stock-viz-docker || { echo "❌ Directory not found"; exit 1; }
           git fetch --all
           git reset --hard origin/main || { echo "❌ Git pull failed"; exit 1; }
