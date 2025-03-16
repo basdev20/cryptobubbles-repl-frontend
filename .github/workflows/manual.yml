@@ -45,18 +45,19 @@ jobs:
           
           echo "📦 Pulling latest changes..."
           cd /home/ubuntu/stock-viz-docker || { echo "❌ Directory not found"; exit 1; }
-          git fetch --all
-          git reset --hard origin/main || { echo "❌ Git pull failed"; exit 1; }
+          git pull origin main
           git submodule update --recursive --remote || { echo "❌ Submodule update failed"; exit 1; }
+          git add .
+          git commit -m "Docker repo updated by CI/CD triggered by frontend repo push"
 
           echo "🛑 Stopping existing containers and cleaning up resources..."
-          docker-compose down --volumes --rmi all --remove-orphans || true
+          docker compose down --volumes --rmi all --remove-orphans || true
 
           echo "🔨 Building and running Next.js app and other services..."
-          docker-compose up -d --build || { echo "❌ Deployment failed"; exit 1; }
+          docker compose up -d --build || { echo "❌ Deployment failed"; exit 1; }
 
           echo "✅ Deployment Successful!"
-          docker-compose ps
+          docker compose ps
           '
 
           echo "✅ Deployment is running in screen session: production"
