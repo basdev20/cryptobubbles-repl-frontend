@@ -154,7 +154,7 @@ const Hero = () => {
         node.append("circle")
             .attr("r", d => {
                 let size = calculateBubbleSize(width, height, allData, d)
-                d.hideInfo = size < 35;
+                d.hideInfo = size < 20;
                 d.r = size
                 return size
             })
