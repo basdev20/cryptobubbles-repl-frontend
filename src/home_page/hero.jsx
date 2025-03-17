@@ -50,9 +50,8 @@ const Hero = () => {
                 let ftseData = allData["ftse"] || {};
                 let sandpData = allData["sandp"] || {};
 
-                let currentTrade = (activeTab == 0 ? sandpData : ftseData)[
-                    activeFilterTab == 0 ? "day" : activeFilterTab == 1 ? "week" : activeFilterTab == 2 ? "month" : "year"
-                ] || [];
+                let time_selector =  activeFilterTab.id == 0 ? "day" : activeFilterTab.id == 1 ? "week" : activeFilterTab.id == 2 ? "month" : "year"
+                let currentTrade = (activeTab == 0 ? sandpData : ftseData)[time_selector] || [];
 
                 setAllData(currentTrade.map((trade, index) => ({
                     ...trade,
