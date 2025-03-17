@@ -278,11 +278,8 @@ const Hero = () => {
             if (!event.active) simulation.alphaTarget(0.03).restart();
         }
         function dragged(event, d) {
-            // Access the SVG element that corresponds to 'd'
-            const element = d3.select(`#bubble-${d.id}`);
-            if (d.id == 0) console.log(d)
             // Extract the radius (r) from the SVG element
-            const r = parseFloat(element.attr('r')) || 0;  // Default to 0 if radius is not found
+            const { r } = d;  // Default to 0 if radius is not found
             // Apply boundary constraints
             const minX = r;  // Left boundary
             const maxX = width - r;  // Right boundary (subtract radius to prevent overflow)
