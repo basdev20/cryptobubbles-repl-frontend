@@ -7,7 +7,7 @@ function formatTimestamp(dateStr) {
     let timestamp = Number(dateStr);
 
     if (timestamp > 1e10) {
-        timestamp = Math.floor(timestamp / 1000); 
+        timestamp = Math.floor(timestamp / 1000);
     }
 
     const date = new Date(timestamp * 1000);
@@ -41,7 +41,7 @@ const Chart = (props) => {
         chart.applyOptions({
             leftPriceScale: { visible: true, borderVisible: false },
             rightPriceScale: { visible: false },
-            timeScale: { borderVisible: false , visible:false},
+            timeScale: { borderVisible: false, visible: false },
             crosshair: {
                 horzLine: { visible: false, labelVisible: false },
                 vertLine: { visible: true, style: 0, width: 2, color: 'rgba(32, 38, 46, 0.1)', labelVisible: true },
@@ -65,6 +65,8 @@ const Chart = (props) => {
         axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/chart-data?ticker=${selectedTicker.ticker}&filter=${activeChartFilterTab.name}`)
             .then((res) => {
                 const { results } = res.data;
+                console.log(res.data)
+
                 let data = results.map(item => ({
                     time: item.t,
                     value: parseFloat(item.o.toFixed(2)),
@@ -106,7 +108,7 @@ const Chart = (props) => {
         toolTip.style.color = 'black';
         toolTip.style.borderColor = '#EEEEEE';
         container.appendChild(toolTip);
-        container.querySelectorAll('a').forEach(a => a.remove()); 
+        container.querySelectorAll('a').forEach(a => a.remove());
 
         chart.subscribeCrosshairMove(param => {
             if (

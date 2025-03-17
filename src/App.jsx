@@ -8,7 +8,7 @@ function App() {
 
   const [activeTab, setActiveTab] = useState(0);
   const [activeFilterTab, setActiveFilterTab] = useState({ id: 0, name: "day", label: "Day" });
-  const [activeChartFilterTab, setActiveChartFilterTab] = useState({ id: 0, name: "hour", label: "Hour", percentage: "0%" });
+  const [activeChartFilterTab, setActiveChartFilterTab] = useState({ id: 0, name: "hour", label: "1H" });
   const [selectedTicker, setSelectedTicker] = useState(null)
 
   return (

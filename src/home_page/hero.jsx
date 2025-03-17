@@ -18,7 +18,6 @@ const Hero = () => {
 
     const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
     const { selectedTicker, setSelectedTicker } = useContext(SelectedElementsContext);
-    const [SandP500, setSandP500] = useState([])
     const [allData, setAllData] = useState([])
 
     const [dimensions, setDimensions] = useState({
@@ -28,291 +27,283 @@ const Hero = () => {
     const svgContainer = useRef();
     const [openStock, setOpenStock] = useState(false)
 
+
+    useEffect(() => {
+        if (!svgContainer.current) return;
+
+        setDimensions({
+            width: svgContainer.current.offsetWidth || 800,
+            height: svgContainer.current.offsetHeight || 600,
+        });
+    }, []);
+
+
     useEffect(() => {
         let w = svgContainer.current.offsetWidth;
         let h = svgContainer.current.offsetHeight
 
-        setSandP500([])
+        axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/all-data`)
+            .then((res) => {
+                const allData = res.data.all || {};
+                let ftseData = allData["ftse"] || {};
+                let sandpData = allData["sandp"] || {};
 
-        axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/all-data`).then((res) => {
-            const allData = res.data.all;
-            setAllData(allData)
+                let currentTrade = (activeTab == 0 ? sandpData : ftseData)[
+                    activeFilterTab == 0 ? "day" : activeFilterTab == 1 ? "week" : activeFilterTab == 2 ? "month" : "year"
+                ] || [];
 
-            let currentTrade = allData[activeTab == 0 ? 'sandp' : "ftse"][activeFilterTab == 0 ? 'day' : activeFilterTab == 1 ? 'week' : activeFilterTab == 2 ? 'month' : 'year']
-
-            setSandP500(currentTrade);
-            setSandP500(currentTrade.map((trade, index) => (
-                { ...trade, id: index, avatar: "/imgs/avatar.png", x: Math.abs(Math.floor(Math.random() * (w - 50))), y: Math.abs(Math.floor(Math.random() * (h - 50))) }
-            )));
-        }).catch(console.error)
-
-
-
-
-
+                setAllData(currentTrade.map((trade, index) => ({
+                    ...trade,
+                    id: index,
+                    avatar: "/imgs/avatar.png",
+                    x: Math.abs(Math.floor(Math.random() * (w - 50))),
+                    y: Math.abs(Math.floor(Math.random() * (h - 50)))
+                })));
+            })
+            .catch(console.error);
     }, [activeTab, activeFilterTab])
 
     useEffect(() => {
-
-        // Get the current height and width of the elment
-        // that will be containinig the svg
-        if (svgContainer.current) {
-            setDimensions({
-                width: svgContainer.current.offsetWidth,
-                height: svgContainer.current.offsetHeight,
-                colorAndSize_state: true,
-                result: -23
-            });
-        }
-
-    }, []);
-
-    useEffect(() => {
-        if (SandP500.length) {
-            const { width, height } = dimensions;
-
-            d3.select("#svgContainer").selectAll("*").remove();
-
-            const svg = d3.select("#svgContainer")
-                .append("svg")
-                .attr("width", "100%")
-                .attr("height", "100%");
-
-            // Create dummy data -> just one element per circle
+        if (!allData || allData.length === 0) return;
+        const { width, height } = dimensions;
+        // Remove existing SVG to reset the canvas
+        d3.select("#svgContainer").selectAll("*").remove(); // Clear previous SVG
 
 
-            // Filter
-            // Define radial gradient for a bubble-like effect
-            const defs = svg.append("defs");
+        const svg = d3.select("#svgContainer")
+            .append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%");
 
-            SandP500.forEach((d, i) => {
-                // the Gradient Circle
-
-                const gradient = defs.append("radialGradient")
-                    .attr("id", `bubbleGradient-${i}`)
-                    .attr("cx", "50%")
-                    .attr("cy", "50%")
-                    .attr("r", "50%");
-
-                // The margin of the white color in the gradient
-                gradient.append("stop")
-                    .attr("offset", "85%")
-                    .attr("stop-color", () => {
-                        if (d.percentage == 0) {
-                            // Nutral
-                            return "rgb(171, 171, 171,0.1)"
-
-                        } else if (d.percentage > 0) {
-                            // Green
-                            return "rgb(5, 247, 163,0.1)"
-                        }
-                        // Red
-                        return "rgb(255, 10, 10, 0.3)"
-                    })
-
-                gradient.append("stop")
-                    .attr("offset", "100%")
-                    .attr("stop-color", () => {
-                        if (d.percentage == 0) {
-                            // Nutral
-                            return "rgb(171, 171, 171,0.7)"
-
-                        } else if (d.percentage > 0) {
-                            // Green
-                            return "rgb(5, 247, 163,0.7)"
-                        }
-                        // Red
-                        return "rgb(255, 10, 10,0.7)"
-                    })
-
-                // gradient.append("stop")
-                //     .attr("offset", "100%")
-                //     .attr("stop-color", "rgba(25, 211, 162, 0.3)");
-            });
-
-            const filter = defs.append("filter")
-                .attr("id", "bubbleBlur");
+        // Create dummy data -> just one element per circle
 
 
-            filter.append("feGaussianBlur")
-                .attr("stdDeviation", 0.5);
+        // Filter
+        // Define radial gradient for a bubble-like effect
+        const defs = svg.append("defs");
 
-            const node = svg.append("g")
-                .selectAll("g")
-                .data(SandP500)
-                .enter()
-                .append("g")
-                .call(d3.drag()
-                    .on("start", dragstarted)
-                    .on("drag", dragged)
-                    .on("end", dragended)
-                )
-                .on("click", function (event, d) {
-                    setSelectedTicker(d)
-                    setOpenStock(d)
-                });
+        allData.forEach((d, i) => {
+            // the Gradient Circle
 
-            let fake_width = width > 800 ? 800 : width
+            const gradient = defs.append("radialGradient")
+                .attr("id", `bubbleGradient-${i}`)
+                .attr("cx", "50%")
+                .attr("cy", "50%")
+                .attr("r", "50%");
 
-            node.append("circle")
-                .attr("r", d => {
-                    let size = calculateBubbleSize(width, height, SandP500, d)
-                    d.hideInfo = size < 35;
+            // The margin of the white color in the gradient
+            gradient.append("stop")
+                .attr("offset", "85%")
+                .attr("stop-color", () => {
+                    if (d.percentage == 0) {
+                        // Nutral
+                        return "rgb(171, 171, 171,0.1)"
 
-                    return size
+                    } else if (d.percentage > 0) {
+                        // Green
+                        return "rgb(5, 247, 163,0.1)"
+                    }
+                    // Red
+                    return "rgb(255, 10, 10, 0.3)"
                 })
-                .attr("id", (d, i) => `bubble-${i}`)
-                .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
-                .attr("filter", "url(#bubbleBlur)")
 
-                .attr("stroke", "rgba(255, 255, 255, 0.8)")
-                .style("stroke-width", 2)
-                .style("opacity", 0.8);
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", () => {
+                    if (d.percentage == 0) {
+                        // Nutral
+                        return "rgb(171, 171, 171,0.7)"
 
-            function calculateBubbleSize(width, height, bubbles, bubble) {
-                const count = bubbles.length;
-                const average = bubbles.reduce((sum, obj) => sum + obj.percentage, 0) / count;
+                    } else if (d.percentage > 0) {
+                        // Green
+                        return "rgb(5, 247, 163,0.7)"
+                    }
+                    // Red
+                    return "rgb(255, 10, 10,0.7)"
+                })
 
-                const params = calculateParams()
+            // gradient.append("stop")
+            //     .attr("offset", "100%")
+            //     .attr("stop-color", "rgba(25, 211, 162, 0.3)");
+        });
 
-                const Q = average - bubble.percentage > 0 ? params[0] : params[1];
-                const bias = 35;
-
-                function calculateParams() {
-                    return [width > 1200 && height > 600 ? 0.3 : 0.1, width > 1200 && height > 600 ? 0.4 : 0.1]; // Return 0 if either s1 or s2 is invalid
-                }
+        const filter = defs.append("filter")
+            .attr("id", "bubbleBlur");
 
 
-                return ((bubble.percentage / count) * (Math.abs(average - bubble.percentage) * Q)) + bias
+        filter.append("feGaussianBlur")
+            .attr("stdDeviation", 0.5);
 
+        const node = svg.append("g")
+            .selectAll("g")
+            .data(allData)
+            .enter()
+            .append("g")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended)
+            )
+            .on("click", function (event, d) {
+                setSelectedTicker(d)
+                setOpenStock(d)
+            });
+
+
+        node.append("circle")
+            .attr("r", d => {
+                let size = calculateBubbleSize(width, height, allData, d)
+                d.hideInfo = size < 35;
+                d.r = size
+                return size
+            })
+            .attr("id", (d, i) => {
+                console.log(`bubble-${activeTab}-${d.id}`)
+                return `bubble-${activeTab}-${d.id}`
+            })
+            .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
+            .attr("filter", "url(#bubbleBlur)")
+
+            .attr("stroke", "rgba(255, 255, 255, 0.8)")
+            .style("stroke-width", 2)
+            .style("opacity", 0.8);
+
+        function calculateBubbleSize(width, height, bubbles, bubble) {
+            const count = bubbles.length;
+            const average = bubbles.reduce((sum, obj) => sum + obj.percentage, 0) / count;
+
+            const params = calculateParams()
+
+            const Q = average - bubble.percentage > 0 ? params[0] : params[1];
+            const bias = 35;
+
+            function calculateParams() {
+                return [width > 1200 && height > 600 ? 0.3 : 0.1, width > 1200 && height > 600 ? 0.4 : 0.1]; // Return 0 if either s1 or s2 is invalid
             }
 
-            // Append avatar image above the text
-            node.append("image")
-                .attr("xlink:href", d => d.avatar) // Assuming 'avatar' contains the image URL
-                .attr("width", 30)
-                .attr("height", 30)
-                .attr("x", d => d.hideInfo ? -15 : -15) // Center the image
-                .attr("y", d => d.hideInfo ? -15 : -30); // Position above text with 15px margin 
 
-            node.append("text")
-                .attr("text-anchor", "middle")
-                .attr("dy", "15") // Adjust text position below the avatar
-                .attr("class", "nunito-font responsive-bubbles")
-                .style("fill", "black")
-                // .style("font-size", "12px")
-                // Make text bold
-                .text(d => !d.hideInfo ? d.ticker : "");
-            node.append("text")
-                .attr("text-anchor", "middle")
-                .attr("dy", "25") // Adjust text position below the avatar
-                .attr("class", "nunito-font responsive-bubbles")
-                .style("fill", "black")
-                // .style("font-size", "12px")
-                // Make text bold
-                .text(d => !d.hideInfo ? `${d.percentage}%` : "");
+            return ((bubble.percentage / count) * (Math.abs(average - bubble.percentage) * Q)) + bias
 
-
-            const simulation = d3.forceSimulation(SandP500)
-                .force("collide", d3.forceCollide()
-                    .strength(.5) // Maximize repelling effect
-                    .radius(d => {
-                        const element = d3.select(`#bubble-${d.id}`);
-                        const r = parseFloat(element.attr('r')) || 0;
-                        return r; // Ensure at least 5px spacing
-                    })
-                    .iterations(50) // More iterations to refine positions
-                )
-                // .force("charge", d3.forceManyBody().strength(10)) // Pushes nodes apart
-                .force("BoundaryForce", customBoundaryForce(50, width, height))
-                .force("x", d3.forceX(width / 2).strength(0.005))
-                .force("y", d3.forceY(height / 2).strength(0.005))
-
-                .on("tick", () => {
-                    node.attr("transform", d => `translate(${d.x}, ${d.y})`);
-                });
-
-            setInterval(() => {
-                const randomX = (Math.random() - 0.5) * 2; // Random value between -1 and 1
-                const randomY = (Math.random() - 0.5) * 2; // Random value between -1 and 1
-
-                simulation
-                    .force("x", d3.forceX(d => width / 2 + randomX * width * 0.3).strength(0.005))
-                    .force("y", d3.forceY(d => height / 2 + randomY * height * 0.3).strength(0.005))
-                    .alpha(1) // Restart the simulation with full energy
-                    .restart();
-            }, 10000);
-
-            function customBoundaryForce(x0, width, height) {
-                return function () {
-                    SandP500.forEach((d) => {
-                        const element = d3.select(`#bubble-${d.id}`);
-                        // Extract the radius (r) from the SVG element
-                        const r = parseFloat(element.attr('r')) || 0;
-
-                        if (!d.x || !d.y || !d.vx || !d.vy) return;
-
-                        // Apply boundary constraints with bounce effect and extra force
-
-                        // Left boundary (considering the radius)
-                        if (d.x < x0) {
-                            d.x = r  // Adjust so the bubble stays at the left boundary
-                            d.vx = Math.max(0, d.vx);  // Prevent further left movement
-                            d.vx += 1.5;  // Apply extra force to push right when hitting left boundary
-                        } else if (d.x + r > width) { // Right boundary (considering the radius)
-                            d.x = width - r;  // Ensure bubble stays within the right boundary
-                            d.vx = Math.min(0, d.vx); // Prevent further right movement
-                            d.vx += 1.5;  // Apply extra force to push left when hitting right boundary
-                        }
-
-                        // Top boundary (considering the radius)
-                        if (d.y - r < 0) {
-                            d.y = r;  // Ensure bubble stays within the top boundary
-                            d.vy = Math.max(0, d.vy);  // Prevent further upward movement
-                            d.vy -= 1.5;  // Apply extra force to push down when hitting the top boundary
-                        } else if (d.y + r > height) { // Bottom boundary (considering the radius)
-                            d.y = height - r;  // Ensure bubble stays within the bottom boundary
-                            d.vy = Math.min(0, d.vy);  // Prevent further downward movement
-                            d.vy += 1.5;  // Apply extra force to push up when hitting the bottom boundary
-                        }
-                    });
-                };
-            }
-
-            function dragstarted(event, d) {
-                if (!event.active) simulation.alphaTarget(0.03).restart();
-            }
-            function dragged(event, d) {
-                // Access the SVG element that corresponds to 'd'
-                const element = d3.select(`#bubble-${d.id}`);
-                if (d.id == 0) console.log(d)
-                // Extract the radius (r) from the SVG element
-                const r = parseFloat(element.attr('r')) || 0;  // Default to 0 if radius is not found
-                // Apply boundary constraints
-                const minX = r;  // Left boundary
-                const maxX = width - r;  // Right boundary (subtract radius to prevent overflow)
-                const minY = r;  // Top boundary
-                const maxY = height - r;  // Bottom boundary (subtract radius to prevent overflow)
-
-                // Update the position based on the drag event, but enforce boundaries
-                d.fx = Math.max(minX, Math.min(maxX, event.x));
-                d.fy = Math.max(minY, Math.min(maxY, event.y));
-
-            }
-
-            function dragended(event, d) {
-                if (!event.active) simulation.alphaTarget(0.03);
-                d.fx = null;
-                d.fy = null;
-            }
         }
 
-    }, [SandP500])
+        // Append avatar image above the text
+        node.append("image")
+            .attr("xlink:href", d => d.avatar) // Assuming 'avatar' contains the image URL
+            .attr("width", 30)
+            .attr("height", 30)
+            .attr("x", d => d.hideInfo ? -15 : -15) // Center the image
+            .attr("y", d => d.hideInfo ? -15 : -30); // Position above text with 15px margin 
+
+        node.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dy", "15") // Adjust text position below the avatar
+            .attr("class", "nunito-font responsive-bubbles")
+            .style("fill", "black")
+            // .style("font-size", "12px")
+            // Make text bold
+            .text(d => !d.hideInfo ? d.ticker : "");
+        node.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dy", "25") // Adjust text position below the avatar
+            .attr("class", "nunito-font responsive-bubbles")
+            .style("fill", "black")
+            // .style("font-size", "12px")
+            // Make text bold
+            .text(d => !d.hideInfo ? `${d.percentage}%` : "");
+
+
+        const simulation = d3.forceSimulation(allData)
+            .force("collide", d3.forceCollide()
+                .strength(.5) // Maximize repelling effect
+                .radius(d => d.r)
+                .iterations(50) // More iterations to refine positions
+            )
+            // .force("charge", d3.forceManyBody().strength(10)) // Pushes nodes apart
+            .force("BoundaryForce", customBoundaryForce(50, width, height))
+            .force("x", d3.forceX(width / 2).strength(0.005))
+            .force("y", d3.forceY(height / 2).strength(0.005))
+
+            .on("tick", () => {
+                node.attr("transform", d => `translate(${d.x}, ${d.y})`);
+            });
+
+        setInterval(() => {
+            const randomX = (Math.random() - 0.5) * 2; // Random value between -1 and 1
+            const randomY = (Math.random() - 0.5) * 2; // Random value between -1 and 1
+
+            simulation
+                .force("x", d3.forceX(d => width / 2 + randomX * width * 0.3).strength(0.005))
+                .force("y", d3.forceY(d => height / 2 + randomY * height * 0.3).strength(0.005))
+                .alpha(1) // Restart the simulation with full energy
+                .restart();
+        }, 10000);
+
+        function customBoundaryForce(x0, width, height) {
+            return function () {
+                allData.forEach((d) => {
+                    const r = d.r
+
+                    if (!d.x || !d.y || !d.vx || !d.vy) return;
+
+                    // Apply boundary constraints with bounce effect and extra force
+
+                    // Left boundary (considering the radius)
+                    if (d.x < x0) {
+                        d.x = r  // Adjust so the bubble stays at the left boundary
+                        d.vx = Math.max(0, d.vx);  // Prevent further left movement
+                        d.vx += 1.5;  // Apply extra force to push right when hitting left boundary
+                    } else if (d.x + r > width) { // Right boundary (considering the radius)
+                        d.x = width - r;  // Ensure bubble stays within the right boundary
+                        d.vx = Math.min(0, d.vx); // Prevent further right movement
+                        d.vx += 1.5;  // Apply extra force to push left when hitting right boundary
+                    }
+
+                    // Top boundary (considering the radius)
+                    if (d.y - r < 0) {
+                        d.y = r;  // Ensure bubble stays within the top boundary
+                        d.vy = Math.max(0, d.vy);  // Prevent further upward movement
+                        d.vy -= 1.5;  // Apply extra force to push down when hitting the top boundary
+                    } else if (d.y + r > height) { // Bottom boundary (considering the radius)
+                        d.y = height - r;  // Ensure bubble stays within the bottom boundary
+                        d.vy = Math.min(0, d.vy);  // Prevent further downward movement
+                        d.vy += 1.5;  // Apply extra force to push up when hitting the bottom boundary
+                    }
+                });
+            };
+        }
+
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.03).restart();
+        }
+        function dragged(event, d) {
+            // Access the SVG element that corresponds to 'd'
+            const element = d3.select(`#bubble-${d.id}`);
+            if (d.id == 0) console.log(d)
+            // Extract the radius (r) from the SVG element
+            const r = parseFloat(element.attr('r')) || 0;  // Default to 0 if radius is not found
+            // Apply boundary constraints
+            const minX = r;  // Left boundary
+            const maxX = width - r;  // Right boundary (subtract radius to prevent overflow)
+            const minY = r;  // Top boundary
+            const maxY = height - r;  // Bottom boundary (subtract radius to prevent overflow)
+
+            // Update the position based on the drag event, but enforce boundaries
+            d.fx = Math.max(minX, Math.min(maxX, event.x));
+            d.fy = Math.max(minY, Math.min(maxY, event.y));
+
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0.03);
+            d.fx = null;
+            d.fy = null;
+        }
+
+    }, [allData])
 
     return (
         <div className="h-[90%]">
             <div ref={svgContainer} className="w-full h-full" id="svgContainer"></div>
-
             <div>
                 <Dialog open={openStock} onOpenChange={() => setOpenStock(false)}>
                     <DialogContent className="w-full bg-[#f7f7f7]">

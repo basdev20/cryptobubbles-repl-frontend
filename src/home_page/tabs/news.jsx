@@ -10,7 +10,6 @@ const News = () => {
     useEffect(() => {
         axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/ticker-news?ticker=${selectedTicker.ticker}`)
             .then((res) => {
-                console.log(res.data.results)
                 setNews(groupNewsByDate(res.data.results))
             }).catch(console.error)
     }, [])
@@ -19,13 +18,13 @@ const News = () => {
         <div className="max-h-[250px] overflow-x-auto">
             {
                 news ?
-                    news.map(timeframe =>
+                    news.map((timeframe, index) =>
                         <>
-                            <h2 className="font-medium text-lg nunito-font mt-2">{timeframe.day} {timeframe.month}</h2>
+                            <h2 key={`timeframe-s-${index}`} className="font-medium text-lg nunito-font mt-2">{timeframe.day} {timeframe.month}</h2>
                             <div className="bg-white w-full py-1 rounded-2xl mt-2">
                                 {/* News will go here */}
                                 {
-                                    timeframe.news.map(_new => <div className="p-3 px-4">
+                                    timeframe.news.map((_new, id) => <div key={`-new-${id}`} className="p-3 px-4">
                                         <div className="text-gray-500"> {selectedTicker.ticker} </div>
                                         <div className="flex justify-between">
                                             <div className="flex flex-col justify-between">
