@@ -158,7 +158,6 @@ const Hero = () => {
                 return size
             })
             .attr("id", (d, i) => {
-                console.log(`bubble-${activeTab}-${d.id}`)
                 return `bubble-${activeTab}-${d.id}`
             })
             .style("fill", (d, i) => `url(#bubbleGradient-${i})`)
@@ -181,8 +180,11 @@ const Hero = () => {
                 return [width > 1200 && height > 600 ? 0.3 : 0.1, width > 1200 && height > 600 ? 0.4 : 0.1]; // Return 0 if either s1 or s2 is invalid
             }
 
+            let size = ((bubble.percentage / count) * (Math.abs(average - bubble.percentage) * Q)) + bias
+            const maxSize = 200; // Maximum size for the bubble
+            if (size > maxSize) size = maxSize;
 
-            return ((bubble.percentage / count) * (Math.abs(average - bubble.percentage) * Q)) + bias
+            return size
 
         }
 
