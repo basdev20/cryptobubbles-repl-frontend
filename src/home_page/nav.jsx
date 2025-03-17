@@ -1,11 +1,12 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import TabsContext from "@/context/tabs";
 import { FloatingTimeSelect } from "@/components/floating-time-select";
 import { Progress } from "@/components/ui/progress"
 import Logo from "@/assets/logo.png";
 
 const Nav = () => {
-    const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
+    const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab, refresh, setRefresh } = useContext(TabsContext);
+    const [progress, setProgress] = useState(0);
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
@@ -14,6 +15,29 @@ const Nav = () => {
     const handleFilterTabClick = (tab) => {
         setActiveFilterTab(tab);
     };
+    const duration = 60000; // 1 minute in milliseconds
+    const intervalTime = 50; // Update every 50ms
+
+    useEffect(() => {
+        let startTime = Date.now();
+        const interval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const newProgress = (elapsed / duration) * 100; // 100% progress
+
+            if (newProgress >= 100) {
+                // Run your code after reaching 100%
+                console
+                setRefresh((prevRefresh) => prevRefresh + 1); // Force re-render
+                setProgress(0); // Reset progress
+                startTime = Date.now(); // Reset start time to start the next cycle
+            } else {
+                setProgress(newProgress); // Update progress
+            }
+        }, intervalTime);
+
+        // Clean up interval on component unmount
+        return () => clearInterval(interval);
+    }, [refresh]); 
 
 
     return (
@@ -22,7 +46,7 @@ const Nav = () => {
                 <div className="px-4 py-2 mx-auto  lg:px-8">
                     <div className="container flex flex-wrap items-center justify-between mx-auto text-slate-800">
                         <a href="#" className="nunito-font mr-4 block cursor-pointer py-1.5 text-base text-slate-800 font-semibold center gap-2">
-                            <img src={Logo} alt="" className="size-10"/>
+                            <img src={Logo} alt="" className="size-10" />
                             Stock Bubbles
                         </a>
                         <div className="hidden lg:block">
@@ -44,8 +68,7 @@ const Nav = () => {
                     </div>
                 </div>
                 <div className="w-full">
-                    <Progress value={50} className="h-1 mt-0.5" />
-
+                    <Progress value={progress} className="h-0.5 mt-0.5" />
                 </div>
             </nav>
             <div className="tabs absolute right-1/2 transform translate-x-1/2 ">

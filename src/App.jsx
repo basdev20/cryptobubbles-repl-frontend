@@ -10,13 +10,14 @@ function App() {
   const [activeFilterTab, setActiveFilterTab] = useState({ id: 0, name: "day", label: "Day" });
   const [activeChartFilterTab, setActiveChartFilterTab] = useState({ id: 0, name: "hour", label: "1H" });
   const [selectedTicker, setSelectedTicker] = useState(null)
+  const [refresh, setRefresh] = useState("");
 
   return (
     <div className="h-screen w-full">
-      <TabsContext.Provider value={{ activeTab, setActiveTab, activeFilterTab, setActiveFilterTab, activeChartFilterTab, setActiveChartFilterTab }}>
+      <TabsContext.Provider value={{ refresh, setRefresh, activeTab, setActiveTab, activeFilterTab, setActiveFilterTab, activeChartFilterTab, setActiveChartFilterTab }}>
         <Nav />
 
-        <SelectedElementsContext.Provider value={{selectedTicker, setSelectedTicker}}>
+        <SelectedElementsContext.Provider value={{ selectedTicker, setSelectedTicker }}>
           <Hero />
         </SelectedElementsContext.Provider>
       </TabsContext.Provider>

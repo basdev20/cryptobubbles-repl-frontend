@@ -16,9 +16,9 @@ import Overview from "./tabs/overview";
 
 const Hero = () => {
 
-    const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab } = useContext(TabsContext);
+    const { activeTab, setActiveTab, activeFilterTab, setActiveFilterTab, refresh } = useContext(TabsContext);
     const { selectedTicker, setSelectedTicker } = useContext(SelectedElementsContext);
-    const [allData, setAllData] = useState([])
+    const [allData, setAllData] = useState([]);
 
     const [dimensions, setDimensions] = useState({
         width: 0,
@@ -40,7 +40,9 @@ const Hero = () => {
 
     useEffect(() => {
         let w = svgContainer.current.offsetWidth;
-        let h = svgContainer.current.offsetHeight
+        let h = svgContainer.current.offsetHeight;
+
+        console.log("Started ....")
 
         axios.get(`${import.meta.env.VITE_SERVER_BASE_URL}/all-data`)
             .then((res) => {
@@ -61,7 +63,7 @@ const Hero = () => {
                 })));
             })
             .catch(console.error);
-    }, [activeTab, activeFilterTab])
+    }, [activeTab, activeFilterTab, refresh])
 
     useEffect(() => {
         if (!allData || allData.length === 0) return;
@@ -234,8 +236,8 @@ const Hero = () => {
             const randomY = (Math.random() - 0.5) * 2; // Random value between -1 and 1
 
             simulation
-                .force("x", d3.forceX(d => width / 2 + randomX * width * 0.3).strength(0.005))
-                .force("y", d3.forceY(d => height / 2 + randomY * height * 0.3).strength(0.005))
+                .force("x", d3.forceX(d => width / 2).strength(0.005))
+                .force("y", d3.forceY(d => height / 2).strength(0.005))
                 .alpha(1) // Restart the simulation with full energy
                 .restart();
         }, 10000);
