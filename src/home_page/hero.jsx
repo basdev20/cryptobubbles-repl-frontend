@@ -50,7 +50,7 @@ const Hero = () => {
                 let ftseData = allData["ftse"] || {};
                 let sandpData = allData["sandp"] || {};
 
-                let time_selector =  activeFilterTab.id == 0 ? "day" : activeFilterTab.id == 1 ? "week" : activeFilterTab.id == 2 ? "month" : "year"
+                let time_selector = activeFilterTab.id == 0 ? "day" : activeFilterTab.id == 1 ? "week" : activeFilterTab.id == 2 ? "month" : "year"
                 let currentTrade = (activeTab == 0 ? sandpData : ftseData)[time_selector] || [];
 
                 setAllData(currentTrade.map((trade, index) => ({
@@ -156,7 +156,7 @@ const Hero = () => {
                 let size = calculateBubbleSize(width, height, allData, d)
                 d.hideInfo = size < 20;
                 d.r = size
-                return size
+                return `${3 + size/18}%`
             })
             .attr("id", (d, i) => {
                 return `bubble-${activeTab}-${d.id}`
