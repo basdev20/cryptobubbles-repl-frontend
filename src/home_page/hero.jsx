@@ -308,7 +308,7 @@ const Hero = () => {
             <div ref={svgContainer} className="w-full h-full" id="svgContainer"></div>
             <div>
                 <Dialog open={openStock} onOpenChange={() => setOpenStock(false)}>
-                    <DialogContent className="w-full bg-[#f7f7f7] min-h-[400px]">
+                    <DialogContent className="w-full flex flex-col justify-start items-start bg-[#f7f7f7] min-h-[550px]">
                         {/* Chart Section */}
                         {
                             selectedTicker ?
@@ -318,7 +318,7 @@ const Hero = () => {
                                         <p className="text-sm">{selectedTicker.sector}</p>
 
                                     </div>
-                                    <div>
+                                    <div className="w-full">
                                         <Tabs tabs={[
                                             { id: 0, label: "Overview", content: <Overview /> },
                                             { id: 1, label: "Financials", content: <></> },

@@ -15,7 +15,7 @@ const News = () => {
     }, [])
 
     return (
-        <div className="max-h-[250px] overflow-x-auto">
+        <div className="max-h-[360px] overflow-x-auto">
             {
                 news ?
                     news.map((timeframe, index) =>
