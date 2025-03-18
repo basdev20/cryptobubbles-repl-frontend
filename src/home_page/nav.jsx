@@ -41,8 +41,8 @@ const Nav = () => {
 
 
     return (
-        <div className="w-full relative">
-            <nav className="max-w-screen-2xl shadow-sm text-white bg-white">
+        <div className="w-full relative shadow-sm">
+            <nav className="max-w-screen-2xl m-auto  text-white bg-white">
                 <div className="px-4 py-2 mx-auto  lg:px-8">
                     <div className="container flex flex-wrap items-center justify-between mx-auto text-slate-800">
                         <a href="#" className="nunito-font mr-4 block cursor-pointer py-1.5 text-base text-slate-800 font-semibold center gap-2">
