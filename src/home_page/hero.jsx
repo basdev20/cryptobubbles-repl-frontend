@@ -156,7 +156,7 @@ const Hero = () => {
                 let size = calculateBubbleSize(width, height, allData, d)
                 d.hideInfo = size < 20;
                 d.r = size
-                return `${3 + size/18}%`
+                return `${3 + size / 18}%`
             })
             .attr("id", (d, i) => {
                 return `bubble-${activeTab}-${d.id}`
@@ -218,7 +218,10 @@ const Hero = () => {
         const simulation = d3.forceSimulation(allData)
             .force("collide", d3.forceCollide()
                 .strength(.5) // Maximize repelling effect
-                .radius(d => d.r)
+                .radius(d => {
+                    let size = calculateBubbleSize(width, height, allData, d)
+                    return (width*0.03) + (size / 18) + 10
+                })
                 .iterations(50) // More iterations to refine positions
             )
             // .force("charge", d3.forceManyBody().strength(10)) // Pushes nodes apart
@@ -231,9 +234,6 @@ const Hero = () => {
             });
 
         setInterval(() => {
-            const randomX = (Math.random() - 0.5) * 2; // Random value between -1 and 1
-            const randomY = (Math.random() - 0.5) * 2; // Random value between -1 and 1
-
             simulation
                 .force("x", d3.forceX(d => width / 2).strength(0.005))
                 .force("y", d3.forceY(d => height / 2).strength(0.005))
@@ -306,7 +306,7 @@ const Hero = () => {
             <div ref={svgContainer} className="w-full h-full" id="svgContainer"></div>
             <div>
                 <Dialog open={openStock} onOpenChange={() => setOpenStock(false)}>
-                    <DialogContent className="w-full bg-[#f7f7f7]">
+                    <DialogContent className="w-full bg-[#f7f7f7] min-h-[400px]">
                         {/* Chart Section */}
                         {
                             selectedTicker ?
