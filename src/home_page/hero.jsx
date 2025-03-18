@@ -156,7 +156,7 @@ const Hero = () => {
                 let size = calculateBubbleSize(width, height, allData, d)
                 d.hideInfo = size < 20;
                 d.r = size
-                return `${3 + size * 0.02}%`
+                return `${4 + size * 0.02}%`
             })
             .attr("id", (d, i) => {
                 return `bubble-${activeTab}-${d.id}`
@@ -194,6 +194,7 @@ const Hero = () => {
             .attr("xlink:href", d => d.avatar) // Assuming 'avatar' contains the image URL
             .attr("width", 30)
             .attr("height", 30)
+            .attr("class", "responsive-bubbles-avatar")
             .attr("x", d => d.hideInfo ? -15 : -15) // Center the image
             .attr("y", d => d.hideInfo ? -15 : -30); // Position above text with 15px margin 
 
@@ -220,7 +221,7 @@ const Hero = () => {
                 .strength(.5) // Maximize repelling effect
                 .radius(d => {
                     let size = calculateBubbleSize(width, height, allData, d)
-                    d.estimatedSize = ((2 + size * 0.02) / 100) * width
+                    d.estimatedSize = ((3 + size * 0.02) / 100) * width
                     return d.estimatedSize
                 })
                 .iterations(50) // More iterations to refine positions
