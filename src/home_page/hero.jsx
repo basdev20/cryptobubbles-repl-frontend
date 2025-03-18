@@ -156,7 +156,7 @@ const Hero = () => {
                 let size = calculateBubbleSize(width, height, allData, d)
                 d.hideInfo = size < 20;
                 d.r = size
-                return `${3 + size * 0.04}%`
+                return `${3 + size * 0.02}%`
             })
             .attr("id", (d, i) => {
                 return `bubble-${activeTab}-${d.id}`
@@ -220,7 +220,7 @@ const Hero = () => {
                 .strength(.5) // Maximize repelling effect
                 .radius(d => {
                     let size = calculateBubbleSize(width, height, allData, d)
-                    d.estimatedSize = ((2 + size * 0.04) / 100) * width
+                    d.estimatedSize = ((2 + size * 0.02) / 100) * width
                     return d.estimatedSize
                 })
                 .iterations(50) // More iterations to refine positions
