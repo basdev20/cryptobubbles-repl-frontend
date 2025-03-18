@@ -156,7 +156,7 @@ const Hero = () => {
                 let size = calculateBubbleSize(width, height, allData, d)
                 d.hideInfo = size < 20;
                 d.r = size
-                return `${3 + size / 18}%`
+                return `${3 + size * 0.04}%`
             })
             .attr("id", (d, i) => {
                 return `bubble-${activeTab}-${d.id}`
@@ -220,7 +220,8 @@ const Hero = () => {
                 .strength(.5) // Maximize repelling effect
                 .radius(d => {
                     let size = calculateBubbleSize(width, height, allData, d)
-                    return (width*0.03) + (size / 18) + 10
+                    d.estimatedSize = ((2 + size * 0.04) / 100) * width
+                    return d.estimatedSize
                 })
                 .iterations(50) // More iterations to refine positions
             )
@@ -244,7 +245,7 @@ const Hero = () => {
         function customBoundaryForce(x0, width, height) {
             return function () {
                 allData.forEach((d) => {
-                    const r = d.r
+                    const { estimatedSize } = d
 
                     if (!d.x || !d.y || !d.vx || !d.vy) return;
 
@@ -252,22 +253,22 @@ const Hero = () => {
 
                     // Left boundary (considering the radius)
                     if (d.x < x0) {
-                        d.x = r  // Adjust so the bubble stays at the left boundary
+                        d.x = estimatedSize  // Adjust so the bubble stays at the left boundary
                         d.vx = Math.max(0, d.vx);  // Prevent further left movement
                         d.vx += 1.5;  // Apply extra force to push right when hitting left boundary
-                    } else if (d.x + r > width) { // Right boundary (considering the radius)
-                        d.x = width - r;  // Ensure bubble stays within the right boundary
+                    } else if (d.x + estimatedSize > width) { // Right boundary (considering the radius)
+                        d.x = width - estimatedSize;  // Ensure bubble stays within the right boundary
                         d.vx = Math.min(0, d.vx); // Prevent further right movement
                         d.vx += 1.5;  // Apply extra force to push left when hitting right boundary
                     }
 
                     // Top boundary (considering the radius)
-                    if (d.y - r < 0) {
-                        d.y = r;  // Ensure bubble stays within the top boundary
+                    if (d.y - estimatedSize < 0) {
+                        d.y = estimatedSize;  // Ensure bubble stays within the top boundary
                         d.vy = Math.max(0, d.vy);  // Prevent further upward movement
                         d.vy -= 1.5;  // Apply extra force to push down when hitting the top boundary
-                    } else if (d.y + r > height) { // Bottom boundary (considering the radius)
-                        d.y = height - r;  // Ensure bubble stays within the bottom boundary
+                    } else if (d.y + estimatedSize > height) { // Bottom boundary (considering the radius)
+                        d.y = height - estimatedSize;  // Ensure bubble stays within the bottom boundary
                         d.vy = Math.min(0, d.vy);  // Prevent further downward movement
                         d.vy += 1.5;  // Apply extra force to push up when hitting the bottom boundary
                     }
@@ -280,12 +281,12 @@ const Hero = () => {
         }
         function dragged(event, d) {
             // Extract the radius (r) from the SVG element
-            const { r } = d;  // Default to 0 if radius is not found
+            const { estimatedSize } = d;  // Default to 0 if radius is not found
             // Apply boundary constraints
-            const minX = r;  // Left boundary
-            const maxX = width - r;  // Right boundary (subtract radius to prevent overflow)
-            const minY = r;  // Top boundary
-            const maxY = height - r;  // Bottom boundary (subtract radius to prevent overflow)
+            const minX = estimatedSize;  // Left boundary
+            const maxX = width - estimatedSize;  // Right boundary (subtract radius to prevent overflow)
+            const minY = estimatedSize;  // Top boundary
+            const maxY = height - estimatedSize;  // Bottom boundary (subtract radius to prevent overflow)
 
             // Update the position based on the drag event, but enforce boundaries
             d.fx = Math.max(minX, Math.min(maxX, event.x));
