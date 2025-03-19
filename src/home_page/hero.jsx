@@ -150,13 +150,28 @@ const Hero = () => {
                 setOpenStock(d)
             });
 
+        let statistics = getStatistics(allData);
+
+        console.log(`Statistics:
+            Min Value: ${statistics.minValue}
+            Max Value: ${statistics.maxValue}
+            Average: ${statistics.avg}
+            Q1: ${statistics.q1}
+            Q2: ${statistics.q2}
+            Q3: ${statistics.q3}
+            IQR: ${statistics.iqr}
+            Min: ${statistics.min}
+            Max: ${statistics.max}
+            Extreme Values: ${statistics.extremeValues.map(obj => obj.percentage).join(", ")}
+            top3: ${statistics.top3.map(obj => obj.percentage).join(", ")}
+            mini3: ${statistics.mini3.map(obj => obj.percentage).join(", ")}`);
 
         node.append("circle")
             .attr("r", d => {
-                let size = calculateBubbleSize(width, height, allData, d)
-                d.hideInfo = size < 20;
-                d.r = size
-                return `${4 + size * 0.02}%`
+                let param = advancedBuddleParamCalculator(allData, statistics, d)
+                d.r = param * 2
+                console.log(`${1 * param}%`)
+                return `${1 * param}%`
             })
             .attr("id", (d, i) => {
                 return `bubble-${activeTab}-${d.id}`
@@ -167,6 +182,8 @@ const Hero = () => {
             .attr("stroke", "rgba(255, 255, 255, 0.8)")
             .style("stroke-width", 2)
             .style("opacity", 0.8);
+
+
 
         function calculateBubbleSize(width, height, bubbles, bubble) {
             const count = bubbles.length;
@@ -187,6 +204,93 @@ const Hero = () => {
 
             return size
 
+        }
+
+        function getStatistics(bubbles) {
+            const n = bubbles.length;
+            if (n === 0) return 1;
+
+            const percentages = bubbles.map(obj => obj.percentage);
+
+            // Basic statistics
+            const sortedValues = [...percentages].sort((a, b) => a - b);
+            const minValue = sortedValues[0];
+            const maxValue = sortedValues[n - 1];
+            const sum = percentages.reduce((acc, v) => acc + v, 0);
+            const avg = sum / n;
+
+            // top 3 values and mini values
+            const sortedBubbles = [...bubbles].sort((a, b) => a.percentage - b.percentage);
+            const mini3 = sortedBubbles.slice(0, 3);
+            const top3 = sortedBubbles.slice(-3);
+
+            // Quartiles
+            const q1 = sortedValues[Math.floor(n * 0.25)];
+            const q3 = sortedValues[Math.floor(n * 0.75)];
+            const q2 = sortedValues[Math.floor(n * 0.5)];
+            const iqr = q3 - q1;
+
+            // Max and Min for the distribution
+            let min = q1 - 1.5 * iqr;
+            let max = q3 + 1.5 * iqr;
+
+            // Extreme values 
+            const extremeValues = bubbles.filter(obj => obj.percentage < min || obj.percentage > max);
+
+            return { top3, mini3, minValue, maxValue, avg, q1, q2, q3, iqr, min, max, extremeValues }
+        }
+
+        function advancedBuddleParamCalculator(bubbles, statistics, bubble) {
+            const { top3, mini3, minValue, maxValue, avg, q1, q2, q3, iqr, min, max, extremeValues } = statistics;
+            const extremeValuesCount = extremeValues.length;
+
+            let param = 3;
+
+            //* When there is no irrelevant values
+            if (extremeValues.length == 0) {
+                // No irrelevant values
+                // when most of the values are in the same range
+                //  and big they should be reduced vice versa
+                if (min > 5 && (top3.includes(bubble) || mini3.includes(bubble))) {
+                    param += 9;
+                } else {
+                    if (bubble.percentage > q2) {
+                        param += 2;
+                    }
+                }
+
+                if (max < 5 && (top3.includes(bubble) || mini3.includes(bubble))) {
+                    param += 0.1;
+                }
+            } else {
+
+                //* Check if the current bubble is irrelevant
+                if (min > bubble.percentage || max < bubble.percentage) {
+                    // code for first situation 
+                    // when we have extreme values
+                    param += extremeValuesCount <= 4 ? 30 / extremeValuesCount : 0.03;
+                    
+                    if (top3.includes(bubble) || mini3.includes(bubble)) {
+                        param += 3;
+                    } else {
+                        if (bubble.percentage > q2) {
+                            param += 2;
+                        }else{
+                            param -= 5;
+                        }
+                    }
+                }
+
+                // not an irrelevant value more than q2
+                if (Math.abs(bubble.percentage) > q2) {
+                    param += 2;
+                } else {
+                    param += 1;
+                }
+            }
+
+
+            return param
         }
 
         // Append avatar image above the text
@@ -246,7 +350,7 @@ const Hero = () => {
         function customBoundaryForce(x0, width, height) {
             return function () {
                 allData.forEach((d) => {
-                    const { estimatedSize } = d
+                    const { r } = d
 
                     if (!d.x || !d.y || !d.vx || !d.vy) return;
 
@@ -254,22 +358,22 @@ const Hero = () => {
 
                     // Left boundary (considering the radius)
                     if (d.x < x0) {
-                        d.x = estimatedSize  // Adjust so the bubble stays at the left boundary
+                        d.x = r  // Adjust so the bubble stays at the left boundary
                         d.vx = Math.max(0, d.vx);  // Prevent further left movement
                         d.vx += 1.5;  // Apply extra force to push right when hitting left boundary
-                    } else if (d.x + estimatedSize > width) { // Right boundary (considering the radius)
-                        d.x = width - estimatedSize;  // Ensure bubble stays within the right boundary
+                    } else if (d.x + r > width) { // Right boundary (considering the radius)
+                        d.x = width - r;  // Ensure bubble stays within the right boundary
                         d.vx = Math.min(0, d.vx); // Prevent further right movement
                         d.vx += 1.5;  // Apply extra force to push left when hitting right boundary
                     }
 
                     // Top boundary (considering the radius)
-                    if (d.y - estimatedSize < 0) {
-                        d.y = estimatedSize;  // Ensure bubble stays within the top boundary
+                    if (d.y - r < 0) {
+                        d.y = r;  // Ensure bubble stays within the top boundary
                         d.vy = Math.max(0, d.vy);  // Prevent further upward movement
                         d.vy -= 1.5;  // Apply extra force to push down when hitting the top boundary
-                    } else if (d.y + estimatedSize > height) { // Bottom boundary (considering the radius)
-                        d.y = height - estimatedSize;  // Ensure bubble stays within the bottom boundary
+                    } else if (d.y + r > height) { // Bottom boundary (considering the radius)
+                        d.y = height - r;  // Ensure bubble stays within the bottom boundary
                         d.vy = Math.min(0, d.vy);  // Prevent further downward movement
                         d.vy += 1.5;  // Apply extra force to push up when hitting the bottom boundary
                     }
@@ -282,12 +386,12 @@ const Hero = () => {
         }
         function dragged(event, d) {
             // Extract the radius (r) from the SVG element
-            const { estimatedSize } = d;  // Default to 0 if radius is not found
+            const { r } = d;  // Default to 0 if radius is not found
             // Apply boundary constraints
-            const minX = estimatedSize;  // Left boundary
-            const maxX = width - estimatedSize;  // Right boundary (subtract radius to prevent overflow)
-            const minY = estimatedSize;  // Top boundary
-            const maxY = height - estimatedSize;  // Bottom boundary (subtract radius to prevent overflow)
+            const minX = r;  // Left boundary
+            const maxX = width - r;  // Right boundary (subtract radius to prevent overflow)
+            const minY = r;  // Top boundary
+            const maxY = height - r;  // Bottom boundary (subtract radius to prevent overflow)
 
             // Update the position based on the drag event, but enforce boundaries
             d.fx = Math.max(minX, Math.min(maxX, event.x));
