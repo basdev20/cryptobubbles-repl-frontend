@@ -150,27 +150,12 @@ const Hero = () => {
                 setOpenStock(d)
             });
 
-        let statistics = getStatistics(allData);
-
-        console.log(`Statistics:
-            Min Value: ${statistics.minValue}
-            Max Value: ${statistics.maxValue}
-            Average: ${statistics.avg}
-            Q1: ${statistics.q1}
-            Q2: ${statistics.q2}
-            Q3: ${statistics.q3}
-            IQR: ${statistics.iqr}
-            Min: ${statistics.min}
-            Max: ${statistics.max}
-            Extreme Values: ${statistics.extremeValues.map(obj => obj.percentage).join(", ")}
-            top3: ${statistics.top3.map(obj => obj.percentage).join(", ")}
-            mini3: ${statistics.mini3.map(obj => obj.percentage).join(", ")}`);
-
         node.append("circle")
             .attr("r", d => {
                 // let param = advancedBuddleParamCalculator(allData, statistics, d)
                 let size = calculateBubbleSize(width, height, d, allData)
-                d.r = size * 2
+                // size = size < 10 ? 30 : size
+                d.r = size
                 // console.log(`${1 * param}%`)
                 // return `${1 * param}%`
                 return size
@@ -208,96 +193,9 @@ const Hero = () => {
 
         // }
 
-        function getStatistics(bubbles) {
-            const n = bubbles.length;
-            if (n === 0) return 1;
-
-            const percentages = bubbles.map(obj => obj.percentage);
-
-            // Basic statistics
-            const sortedValues = [...percentages].sort((a, b) => a - b);
-            const minValue = sortedValues[0];
-            const maxValue = sortedValues[n - 1];
-            const sum = percentages.reduce((acc, v) => acc + v, 0);
-            const avg = sum / n;
-
-            // top 3 values and mini values
-            const sortedBubbles = [...bubbles].sort((a, b) => a.percentage - b.percentage);
-            const mini3 = sortedBubbles.slice(0, 3);
-            const top3 = sortedBubbles.slice(-3);
-
-            // Quartiles
-            const q1 = sortedValues[Math.floor(n * 0.25)];
-            const q3 = sortedValues[Math.floor(n * 0.75)];
-            const q2 = sortedValues[Math.floor(n * 0.5)];
-            const iqr = q3 - q1;
-
-            // Max and Min for the distribution
-            let min = q1 - 1.5 * iqr;
-            let max = q3 + 1.5 * iqr;
-
-            // Extreme values 
-            const extremeValues = bubbles.filter(obj => obj.percentage < min || obj.percentage > max);
-
-            return { top3, mini3, minValue, maxValue, avg, q1, q2, q3, iqr, min, max, extremeValues }
-        }
-
-        function advancedBuddleParamCalculator(bubbles, statistics, bubble) {
-            const { top3, mini3, minValue, maxValue, avg, q1, q2, q3, iqr, min, max, extremeValues } = statistics;
-            const extremeValuesCount = extremeValues.length;
-
-            let param = 3;
-
-            //* When there is no irrelevant values
-            if (extremeValues.length == 0) {
-                // No irrelevant values
-                // when most of the values are in the same range
-                //  and big they should be reduced vice versa
-                if (min > 5 && (top3.includes(bubble) || mini3.includes(bubble))) {
-                    param += 9;
-                } else {
-                    if (bubble.percentage > q2) {
-                        param += 2;
-                    }
-                }
-
-                if (max < 5 && (top3.includes(bubble) || mini3.includes(bubble))) {
-                    param += 0.1;
-                }
-            } else {
-
-                //* Check if the current bubble is irrelevant
-                if (min > bubble.percentage || max < bubble.percentage) {
-                    // code for first situation 
-                    // when we have extreme values
-                    param += extremeValuesCount <= 4 ? 30 / extremeValuesCount : 0.03;
-
-                    if (top3.includes(bubble) || mini3.includes(bubble)) {
-                        param += 3;
-                    } else {
-                        if (bubble.percentage > q2) {
-                            param += 2;
-                        } else {
-                            param -= 5;
-                        }
-                    }
-                }
-
-                // not an irrelevant value more than q2
-                if (Math.abs(bubble.percentage) > q2) {
-                    param += 2;
-                } else {
-                    param += 1;
-                }
-            }
-
-
-            return param
-        }
-
         function calculateBubbleSize(width, height, bubble, allBubbles, factor = 0.6) {
             const PI = Math.PI;
-            let totalPercentage = 1;
+            let totalPercentage = 0;
 
             // Step 1: Calculate window's area (S)
             const S = width * height;
@@ -308,11 +206,13 @@ const Hero = () => {
             // Step 3: Calculate the sum of all percentages
             // console.log(allBubbles)
             if (!allBubbles.length == 0)
-                totalPercentage = allBubbles.reduce((sum, b) => sum + b.percentage, 0);
+                totalPercentage = allBubbles.reduce((sum, b) => sum + Math.abs(b.percentage), 0);
 
             // Step 4: Calculate the radius for the specific bubble
-            const Sn = Sb * (bubble.percentage / totalPercentage); // Individual bubble area
+            const Sn = Sb * (Math.abs(bubble.percentage) / totalPercentage); // Individual bubble area
             const Rn = Math.sqrt(Sn / PI); // Calculate radius
+
+            console.log(Rn)
 
             return Rn; // Return only the radius of the passed bubble
         }
@@ -348,9 +248,8 @@ const Hero = () => {
             .force("collide", d3.forceCollide()
                 .strength(.5) // Maximize repelling effect
                 .radius(d => {
-                    let size = calculateBubbleSize(width, height, allData, d)
-                    d.estimatedSize = ((3 + size * 0.02) / 100) * width
-                    return d.estimatedSize
+                    console.log(d.r)
+                    return d.r
                 })
                 .iterations(50) // More iterations to refine positions
             )
