@@ -168,10 +168,12 @@ const Hero = () => {
 
         node.append("circle")
             .attr("r", d => {
-                let param = advancedBuddleParamCalculator(allData, statistics, d)
-                d.r = param * 2
-                console.log(`${1 * param}%`)
-                return `${1 * param}%`
+                // let param = advancedBuddleParamCalculator(allData, statistics, d)
+                let size = calculateBubbleSize(width, height, d, allData)
+                d.r = size * 2
+                // console.log(`${1 * param}%`)
+                // return `${1 * param}%`
+                return size
             })
             .attr("id", (d, i) => {
                 return `bubble-${activeTab}-${d.id}`
@@ -185,26 +187,26 @@ const Hero = () => {
 
 
 
-        function calculateBubbleSize(width, height, bubbles, bubble) {
-            const count = bubbles.length;
-            const average = bubbles.reduce((sum, obj) => sum + obj.percentage, 0) / count;
+        // function calculateBubbleSize(width, height, bubbles, bubble) {
+        //     const count = bubbles.length;
+        //     const average = bubbles.reduce((sum, obj) => sum + obj.percentage, 0) / count;
 
-            const params = calculateParams()
+        //     const params = calculateParams()
 
-            const Q = average - bubble.percentage > 0 ? params[0] : params[1];
-            const bias = 35;
+        //     const Q = average - bubble.percentage > 0 ? params[0] : params[1];
+        //     const bias = 35;
 
-            function calculateParams() {
-                return [width > 1200 && height > 600 ? 0.3 : 0.1, width > 1200 && height > 600 ? 0.4 : 0.1]; // Return 0 if either s1 or s2 is invalid
-            }
+        //     function calculateParams() {
+        //         return [width > 1200 && height > 600 ? 0.3 : 0.1, width > 1200 && height > 600 ? 0.4 : 0.1]; // Return 0 if either s1 or s2 is invalid
+        //     }
 
-            let size = ((bubble.percentage / count) * (Math.abs(average - bubble.percentage) * Q)) + bias
-            const maxSize = 200; // Maximum size for the bubble
-            if (size > maxSize) size = maxSize;
+        //     let size = ((bubble.percentage / count) * (Math.abs(average - bubble.percentage) * Q)) + bias
+        //     const maxSize = 200; // Maximum size for the bubble
+        //     if (size > maxSize) size = maxSize;
 
-            return size
+        //     return size
 
-        }
+        // }
 
         function getStatistics(bubbles) {
             const n = bubbles.length;
@@ -269,13 +271,13 @@ const Hero = () => {
                     // code for first situation 
                     // when we have extreme values
                     param += extremeValuesCount <= 4 ? 30 / extremeValuesCount : 0.03;
-                    
+
                     if (top3.includes(bubble) || mini3.includes(bubble)) {
                         param += 3;
                     } else {
                         if (bubble.percentage > q2) {
                             param += 2;
-                        }else{
+                        } else {
                             param -= 5;
                         }
                     }
@@ -291,6 +293,28 @@ const Hero = () => {
 
 
             return param
+        }
+
+        function calculateBubbleSize(width, height, bubble, allBubbles, factor = 0.6) {
+            const PI = Math.PI;
+            let totalPercentage = 1;
+
+            // Step 1: Calculate window's area (S)
+            const S = width * height;
+
+            // Step 2: Calculate total bubble area (Sb)
+            const Sb = S * factor;
+
+            // Step 3: Calculate the sum of all percentages
+            // console.log(allBubbles)
+            if (!allBubbles.length == 0)
+                totalPercentage = allBubbles.reduce((sum, b) => sum + b.percentage, 0);
+
+            // Step 4: Calculate the radius for the specific bubble
+            const Sn = Sb * (bubble.percentage / totalPercentage); // Individual bubble area
+            const Rn = Math.sqrt(Sn / PI); // Calculate radius
+
+            return Rn; // Return only the radius of the passed bubble
         }
 
         // Append avatar image above the text
