@@ -129,7 +129,7 @@
   
 
 .responsive-bubbles{
-  @apply sm:text-[10px] text-[0px] 
+  @apply text-[10px]
 }
 .responsive-bubbles-avatar {
   @apply  translate-y-3 sm:translate-x-0 sm:translate-y-0;

@@ -156,6 +156,7 @@ const Hero = () => {
                 let size = calculateBubbleSize(width, height, d, allData)
                 // size = size < 10 ? 30 : size
                 d.r = size
+                d.hideInfo = size < 30 
                 // console.log(`${1 * param}%`)
                 // return `${1 * param}%`
                 return size
@@ -247,10 +248,7 @@ const Hero = () => {
         const simulation = d3.forceSimulation(allData)
             .force("collide", d3.forceCollide()
                 .strength(.5) // Maximize repelling effect
-                .radius(d => {
-                    console.log(d.r)
-                    return d.r
-                })
+                .radius(d => d.r)
                 .iterations(50) // More iterations to refine positions
             )
             // .force("charge", d3.forceManyBody().strength(10)) // Pushes nodes apart
