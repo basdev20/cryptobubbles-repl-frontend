@@ -24,7 +24,7 @@ Make sure you have the following installed:
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/juancruz327/cryptobubbles-repl-frontend.git
+   git clone https://github.com/basdev20/cryptobubbles-repl-frontend.git
    cd cryptobubbles-repl-frontend
    npm install
    npm run dev
